@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { Routes, Route, Navigate } from 'react-router-dom';
+import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { Helmet } from 'react-helmet-async';
 
@@ -14,6 +14,7 @@ import VideoConsultation from './pages/consultation/VideoConsultation';
 import HealthRecords from './pages/patient/HealthRecords';
 import SymptomChecker from './pages/patient/SymptomChecker';
 import ProfileSettings from './pages/ProfileSettings';
+import Messages from './pages/Messages';
 import NotFoundPage from './pages/NotFoundPage';
 
 // Import components
@@ -31,7 +32,19 @@ import { initializeApp } from './utils/appInitializer';
 
 function App() {
   const dispatch = useDispatch();
+  const location = useLocation();
   const { isAuthenticated, user, isLoading } = useSelector(state => state.auth);
+
+  // Define public routes where navbar should be shown
+  const publicRoutes = ['/', '/login', '/register', '/auth/login', '/auth/register'];
+  const isNotFoundPage = !publicRoutes.includes(location.pathname) && 
+                         !location.pathname.startsWith('/patient') && 
+                         !location.pathname.startsWith('/provider') && 
+                         !location.pathname.startsWith('/admin') && 
+                         !location.pathname.startsWith('/profile') && 
+                         !location.pathname.startsWith('/consultation') &&
+                         !location.pathname.startsWith('/dashboard');
+  const shouldShowNavbar = publicRoutes.includes(location.pathname) || isNotFoundPage;
 
   useEffect(() => {
     // Initialize app and check authentication
@@ -60,17 +73,17 @@ function App() {
 
   return (
     <ErrorBoundary>
-      <div className="App min-h-screen bg-gray-50">
+      <div className={`App ${shouldShowNavbar ? 'min-h-screen bg-gray-50' : 'h-screen'}`}>
         <Helmet>
           <title>MediConnect AI - Telemedicine Platform</title>
           <meta name="description" content="AI-powered telemedicine platform bridging healthcare gaps through technology" />
         </Helmet>
 
-        {/* Navigation */}
-        <Navbar />
+        {/* Navigation - Only show on public pages */}
+        {shouldShowNavbar && <Navbar />}
 
         {/* Main Content */}
-        <main className="min-h-screen">
+        <main className={shouldShowNavbar ? "min-h-screen" : "h-screen"}>
           <Routes>
             {/* Public Routes */}
             <Route path="/" element={<HomePage />} />
@@ -152,6 +165,14 @@ function App() {
                 </ProtectedRoute>
               } 
             />
+            <Route 
+              path="/messages" 
+              element={
+                <ProtectedRoute>
+                  <Messages />
+                </ProtectedRoute>
+              } 
+            />
 
             {/* Admin Routes (placeholder for future) */}
             <Route 
@@ -195,8 +216,8 @@ function App() {
           </Routes>
         </main>
 
-        {/* Footer */}
-        <Footer />
+        {/* Footer - Only show on public pages */}
+        {shouldShowNavbar && <Footer />}
       </div>
     </ErrorBoundary>
   );

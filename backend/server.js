@@ -34,6 +34,9 @@ app.use(helmet({
   },
   crossOriginEmbedderPolicy: false,
 }));
+console.log(require('crypto').randomBytes(32).toString('hex'));
+
+
 
 // CORS configuration
 app.use(cors({
@@ -197,5 +200,7 @@ async function startServer() {
 if (require.main === module) {
   startServer();
 }
+
+
 
 module.exports = app;

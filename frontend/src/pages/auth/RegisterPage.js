@@ -23,6 +23,9 @@ const RegisterPage = () => {
     phoneNumber: '',
     dateOfBirth: '',
     agreeToTerms: false,
+    // Provider-specific fields
+    specialization: '',
+    licenseNumber: '',
   });
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -114,6 +117,17 @@ const RegisterPage = () => {
       newErrors.agreeToTerms = 'You must agree to the terms and conditions';
     }
 
+    // Provider-specific validation
+    if (formData.role === 'provider') {
+      if (!formData.specialization.trim()) {
+        newErrors.specialization = 'Specialization is required for healthcare providers';
+      }
+      
+      if (!formData.licenseNumber.trim()) {
+        newErrors.licenseNumber = 'License number is required for healthcare providers';
+      }
+    }
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -184,6 +198,65 @@ const RegisterPage = () => {
                   <option value="provider">Healthcare Provider</option>
                 </select>
               </div>
+
+              {/* Provider-specific fields */}
+              {formData.role === 'provider' && (
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label htmlFor="specialization" className="block text-sm font-medium text-gray-700 mb-1">
+                      Specialization
+                    </label>
+                    <select
+                      id="specialization"
+                      name="specialization"
+                      value={formData.specialization}
+                      onChange={handleChange}
+                      className={`appearance-none relative block w-full px-3 py-3 border ${
+                        errors.specialization ? 'border-red-300' : 'border-gray-300'
+                      } placeholder-gray-500 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-500 focus:z-10 sm:text-sm transition-colors`}
+                    >
+                      <option value="">Select specialization</option>
+                      <option value="general-practice">General Practice</option>
+                      <option value="cardiology">Cardiology</option>
+                      <option value="dermatology">Dermatology</option>
+                      <option value="endocrinology">Endocrinology</option>
+                      <option value="gastroenterology">Gastroenterology</option>
+                      <option value="neurology">Neurology</option>
+                      <option value="oncology">Oncology</option>
+                      <option value="orthopedics">Orthopedics</option>
+                      <option value="pediatrics">Pediatrics</option>
+                      <option value="psychiatry">Psychiatry</option>
+                      <option value="radiology">Radiology</option>
+                      <option value="surgery">Surgery</option>
+                      <option value="urology">Urology</option>
+                      <option value="other">Other</option>
+                    </select>
+                    {errors.specialization && (
+                      <p className="mt-1 text-sm text-red-600">{errors.specialization}</p>
+                    )}
+                  </div>
+
+                  <div>
+                    <label htmlFor="licenseNumber" className="block text-sm font-medium text-gray-700 mb-1">
+                      License Number
+                    </label>
+                    <input
+                      id="licenseNumber"
+                      name="licenseNumber"
+                      type="text"
+                      value={formData.licenseNumber}
+                      onChange={handleChange}
+                      className={`appearance-none relative block w-full px-3 py-3 border ${
+                        errors.licenseNumber ? 'border-red-300' : 'border-gray-300'
+                      } placeholder-gray-500 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-500 focus:z-10 sm:text-sm transition-colors`}
+                      placeholder="Medical license number"
+                    />
+                    {errors.licenseNumber && (
+                      <p className="mt-1 text-sm text-red-600">{errors.licenseNumber}</p>
+                    )}
+                  </div>
+                </div>
+              )}
 
               {/* Name Fields */}
               <div className="grid grid-cols-2 gap-4">

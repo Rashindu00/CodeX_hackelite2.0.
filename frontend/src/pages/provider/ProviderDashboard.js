@@ -146,18 +146,17 @@ const ProviderDashboard = () => {
       </Helmet>
 
       <DashboardLayout>
-        <div className="min-h-screen bg-gray-50">
-          {/* Header */}
-          <div className="bg-white shadow-sm border-b">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-              <div className="py-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <h1 className="text-3xl font-bold text-gray-900">
-                      Good morning, Dr. {user?.lastName || 'Provider'}
-                    </h1>
-                    <p className="mt-2 text-gray-600">
-                      You have {stats.todayAppointments} appointments today
+        {/* Header */}
+        <div className="bg-white shadow-sm border-b">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="py-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h1 className="text-3xl font-bold text-gray-900">
+                    Good morning, Dr. {user?.lastName || 'Provider'}
+                  </h1>
+                  <p className="mt-2 text-gray-600">
+                    You have {stats.todayAppointments} appointments today
                     </p>
                   </div>
                   <div className="flex items-center space-x-4">
@@ -175,7 +174,9 @@ const ProviderDashboard = () => {
           </div>
         </div>
 
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Main Content */}
+        <div className="bg-gray-50 min-h-screen">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           {/* Stats Overview */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
             {dashboardStats.map((stat) => (
@@ -342,9 +343,9 @@ const ProviderDashboard = () => {
               </div>
             </div>
           </div>
-        </div>
           </div>
-        </DashboardLayout>
+        </div>
+      </DashboardLayout>
       </>
     );
   };
