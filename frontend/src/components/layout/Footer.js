@@ -16,7 +16,7 @@ const Footer = () => {
               Bridging healthcare gaps through technology. AI-powered telemedicine platform for accessible healthcare.
             </p>
             <p className="text-sm text-gray-400">
-              © 2024 MediConnect AI. All rights reserved.
+              © 2025 MediConnect AI. All rights reserved.
             </p>
           </div>
           
