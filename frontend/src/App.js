@@ -9,8 +9,11 @@ import LoginPage from './pages/auth/LoginPage';
 import RegisterPage from './pages/auth/RegisterPage';
 import PatientDashboard from './pages/patient/PatientDashboard';
 import ProviderDashboard from './pages/provider/ProviderDashboard';
+import ProviderPatients from './pages/provider/ProviderPatients';
+import ProviderAppointments from './pages/provider/ProviderAppointments';
+import ProviderConsultations from './pages/provider/ProviderConsultations';
 import AppointmentBooking from './pages/patient/AppointmentBooking';
-import VideoConsultation from './pages/consultation/VideoConsultation';
+import VideoConsultation from './pages/patient/VideoConsultation';
 import HealthRecords from './pages/patient/HealthRecords';
 import SymptomChecker from './pages/patient/SymptomChecker';
 import ProfileSettings from './pages/ProfileSettings';
@@ -122,6 +125,22 @@ function App() {
               } 
             />
             <Route 
+              path="/patient/appointment-booking" 
+              element={
+                <ProtectedRoute requiredRole="patient">
+                  <AppointmentBooking />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/patient/video-consultation" 
+              element={
+                <ProtectedRoute requiredRole="patient">
+                  <VideoConsultation />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
               path="/patient/health-records" 
               element={
                 <ProtectedRoute requiredRole="patient">
@@ -144,6 +163,30 @@ function App() {
               element={
                 <ProtectedRoute requiredRole="provider">
                   <ProviderDashboard />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/provider/patients" 
+              element={
+                <ProtectedRoute requiredRole="provider">
+                  <ProviderPatients />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/provider/appointments" 
+              element={
+                <ProtectedRoute requiredRole="provider">
+                  <ProviderAppointments />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/provider/consultations" 
+              element={
+                <ProtectedRoute requiredRole="provider">
+                  <ProviderConsultations />
                 </ProtectedRoute>
               } 
             />

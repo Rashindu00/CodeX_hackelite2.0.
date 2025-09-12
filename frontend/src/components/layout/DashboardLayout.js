@@ -13,7 +13,8 @@ import {
   ClipboardDocumentListIcon,
   Bars3Icon,
   XMarkIcon,
-  ArrowRightOnRectangleIcon
+  ArrowRightOnRectangleIcon,
+  ChatBubbleLeftRightIcon
 } from '@heroicons/react/24/outline';
 import { logoutUser } from '../../store/slices/authSlice';
 
@@ -45,8 +46,10 @@ const DashboardLayout = ({ children }) => {
     if (user?.role === 'patient') {
       return [
         { name: 'Dashboard', href: '/patient', icon: HomeIcon },
-        { name: 'Book Appointment', href: '/patient/appointments', icon: CalendarDaysIcon },
+        { name: 'Book Appointment', href: '/patient/appointment-booking', icon: CalendarDaysIcon },
+        { name: 'Video Consultation', href: '/patient/video-consultation', icon: VideoCameraIcon },
         { name: 'Health Records', href: '/patient/health-records', icon: DocumentTextIcon },
+        { name: 'Messages', href: '/messages', icon: ChatBubbleLeftRightIcon },
         { name: 'Symptom Checker', href: '/patient/symptom-checker', icon: HeartIcon },
         { name: 'Profile', href: '/profile', icon: UserIcon },
       ];

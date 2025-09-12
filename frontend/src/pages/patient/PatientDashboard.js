@@ -6,9 +6,9 @@ import {
   CalendarDaysIcon,
   HeartIcon,
   PlusIcon,
-  BellIcon,
   ChartBarIcon,
   DocumentTextIcon,
+  VideoCameraIcon,
 } from '@heroicons/react/24/outline';
 import DashboardLayout from '../../components/layout/DashboardLayout';
 
@@ -68,7 +68,13 @@ const PatientDashboard = () => {
       name: 'Book Appointment',
       icon: CalendarDaysIcon,
       color: 'bg-blue-500',
-      href: '/patient/appointments'
+      href: '/patient/appointment-booking'
+    },
+    {
+      name: 'Video Consultation',
+      icon: VideoCameraIcon,
+      color: 'bg-teal-500',
+      href: '/patient/video-consultation'
     },
     {
       name: 'Health Records',
@@ -81,12 +87,6 @@ const PatientDashboard = () => {
       icon: HeartIcon,
       color: 'bg-red-500',
       href: '/patient/symptom-checker'
-    },
-    {
-      name: 'Messages',
-      icon: BellIcon,
-      color: 'bg-purple-500',
-      href: '/messages'
     }
   ];
 
@@ -305,7 +305,7 @@ const PatientDashboard = () => {
                     <p className="text-gray-500 text-center py-4">No upcoming appointments</p>
                   )}
                   <button 
-                    onClick={() => navigate('/patient/appointments')}
+                    onClick={() => navigate('/patient/appointment-booking')}
                     className="w-full mt-4 bg-teal-600 text-white py-2 px-4 rounded-lg hover:bg-teal-700 transition-colors focus:outline-none focus:ring-2 focus:ring-teal-500"
                   >
                     Book New Appointment
