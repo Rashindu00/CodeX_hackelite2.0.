@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { useSelector } from 'react-redux';
+import { toast } from 'react-hot-toast';
 import {
   DocumentTextIcon,
   HeartIcon,
@@ -11,10 +12,12 @@ import {
   EyeIcon,
   ArrowDownTrayIcon,
   ArrowLeftIcon,
-  PlusIcon
+  PlusIcon,
+  XMarkIcon
 } from '@heroicons/react/24/outline';
 import DashboardLayout from '../../components/layout/DashboardLayout';
 import { useNavigate } from 'react-router-dom';
+import api from '../../services/api';
 
 const HealthRecords = () => {
   const navigate = useNavigate();
@@ -24,85 +27,187 @@ const HealthRecords = () => {
   const [vitals, setVitals] = useState([]);
   const [medications, setMedications] = useState([]);
   const [allergies, setAllergies] = useState([]);
+  const [loading, setLoading] = useState(false);
+  
+  // Modal states
+  const [showUploadModal, setShowUploadModal] = useState(false);
+  const [showVitalsModal, setShowVitalsModal] = useState(false);
+  const [showMedicationModal, setShowMedicationModal] = useState(false);
+  const [showAllergyModal, setShowAllergyModal] = useState(false);
+  
+  // Form states
+  const [uploadForm, setUploadForm] = useState({
+    file: null,
+    title: '',
+    description: '',
+    category: 'general'
+  });
+  
+  const [vitalsForm, setVitalsForm] = useState({
+    bloodPressure: '',
+    heartRate: '',
+    temperature: '',
+    weight: '',
+    height: '',
+    notes: '',
+    date: new Date().toISOString().split('T')[0]
+  });
+  
+  const [medicationForm, setMedicationForm] = useState({
+    medicationName: '',
+    dosage: '',
+    frequency: '',
+    startDate: new Date().toISOString().split('T')[0],
+    endDate: '',
+    prescribedBy: '',
+    notes: '',
+    status: 'active'
+  });
+  
+  const [allergyForm, setAllergyForm] = useState({
+    allergen: '',
+    severity: 'mild',
+    reaction: '',
+    diagnosedDate: new Date().toISOString().split('T')[0],
+    notes: ''
+  });
 
-  // Mock data
+  // Fetch health records data
   useEffect(() => {
-    // Mock health records
-    setRecords([
-      {
-        id: 1,
-        type: 'Lab Report',
-        title: 'Complete Blood Count',
-        date: '2024-01-15',
-        provider: 'Dr. Sarah Johnson',
-        status: 'Normal',
-        file: 'blood_test_jan_2024.pdf'
-      },
-      {
-        id: 2,
-        type: 'Prescription',
-        title: 'Blood Pressure Medication',
-        date: '2024-01-10',
-        provider: 'Dr. Michael Chen',
-        status: 'Active',
-        file: 'prescription_jan_2024.pdf'
-      },
-      {
-        id: 3,
-        type: 'Visit Summary',
-        title: 'Annual Physical Examination',
-        date: '2024-01-05',
-        provider: 'Dr. Emily Davis',
-        status: 'Complete',
-        file: 'annual_checkup_2024.pdf'
-      },
-      {
-        id: 4,
-        type: 'Imaging',
-        title: 'Chest X-Ray',
-        date: '2023-12-20',
-        provider: 'Radiology Department',
-        status: 'Normal',
-        file: 'chest_xray_dec_2023.pdf'
-      }
-    ]);
-
-    // Mock vital signs
-    setVitals([
-      { date: '2024-01-15', bloodPressure: '120/80', heartRate: 72, temperature: 98.6, weight: 150 },
-      { date: '2024-01-10', bloodPressure: '118/78', heartRate: 75, temperature: 98.4, weight: 149 },
-      { date: '2024-01-05', bloodPressure: '122/82', heartRate: 70, temperature: 98.7, weight: 151 },
-      { date: '2023-12-20', bloodPressure: '119/79', heartRate: 73, temperature: 98.5, weight: 150 }
-    ]);
-
-    // Mock medications
-    setMedications([
-      {
-        id: 1,
-        name: 'Lisinopril',
-        dosage: '10mg',
-        frequency: 'Once daily',
-        prescribedBy: 'Dr. Michael Chen',
-        startDate: '2024-01-10',
-        status: 'Active'
-      },
-      {
-        id: 2,
-        name: 'Metformin',
-        dosage: '500mg',
-        frequency: 'Twice daily',
-        prescribedBy: 'Dr. Sarah Johnson',
-        startDate: '2023-11-15',
-        status: 'Active'
-      }
-    ]);
-
-    // Mock allergies
-    setAllergies([
-      { id: 1, allergen: 'Penicillin', reaction: 'Skin rash', severity: 'Moderate' },
-      { id: 2, allergen: 'Peanuts', reaction: 'Breathing difficulty', severity: 'Severe' }
-    ]);
+    fetchHealthRecords();
   }, []);
+
+  const fetchHealthRecords = async () => {
+    try {
+      setLoading(true);
+      const response = await api.get('/health-records');
+      const healthRecords = response.data.data.healthRecords;
+      
+      // Separate records by type
+      const documents = healthRecords.filter(record => record.type === 'document');
+      const vitalsData = healthRecords.filter(record => record.type === 'vitals');
+      const medicationsData = healthRecords.filter(record => record.type === 'medication');
+      const allergiesData = healthRecords.filter(record => record.type === 'allergy');
+      
+      setRecords(documents);
+      setVitals(vitalsData);
+      setMedications(medicationsData);
+      setAllergies(allergiesData);
+    } catch (error) {
+      console.error('Error fetching health records:', error);
+      toast.error('Failed to load health records');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Handler functions
+  const handleUploadSubmit = async (e) => {
+    e.preventDefault();
+    if (!uploadForm.file) {
+      toast.error('Please select a file to upload');
+      return;
+    }
+
+    try {
+      setLoading(true);
+      const formData = new FormData();
+      formData.append('file', uploadForm.file);
+      formData.append('title', uploadForm.title);
+      formData.append('description', uploadForm.description);
+      formData.append('category', uploadForm.category);
+
+      await api.post('/health-records/upload', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+
+      toast.success('Health record uploaded successfully!');
+      setShowUploadModal(false);
+      setUploadForm({ file: null, title: '', description: '', category: 'general' });
+      fetchHealthRecords();
+    } catch (error) {
+      console.error('Error uploading record:', error);
+      toast.error('Failed to upload health record');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleVitalsSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      setLoading(true);
+      await api.post('/health-records/vitals', vitalsForm);
+      toast.success('Vital signs added successfully!');
+      setShowVitalsModal(false);
+      setVitalsForm({
+        bloodPressure: '',
+        heartRate: '',
+        temperature: '',
+        weight: '',
+        height: '',
+        notes: '',
+        date: new Date().toISOString().split('T')[0]
+      });
+      fetchHealthRecords();
+    } catch (error) {
+      console.error('Error adding vitals:', error);
+      toast.error('Failed to add vital signs');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleMedicationSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      setLoading(true);
+      await api.post('/health-records/medications', medicationForm);
+      toast.success('Medication added successfully!');
+      setShowMedicationModal(false);
+      setMedicationForm({
+        medicationName: '',
+        dosage: '',
+        frequency: '',
+        startDate: new Date().toISOString().split('T')[0],
+        endDate: '',
+        prescribedBy: '',
+        notes: '',
+        status: 'active'
+      });
+      fetchHealthRecords();
+    } catch (error) {
+      console.error('Error adding medication:', error);
+      toast.error('Failed to add medication');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleAllergySubmit = async (e) => {
+    e.preventDefault();
+    try {
+      setLoading(true);
+      await api.post('/health-records/allergies', allergyForm);
+      toast.success('Allergy added successfully!');
+      setShowAllergyModal(false);
+      setAllergyForm({
+        allergen: '',
+        severity: 'mild',
+        reaction: '',
+        diagnosedDate: new Date().toISOString().split('T')[0],
+        notes: ''
+      });
+      fetchHealthRecords();
+    } catch (error) {
+      console.error('Error adding allergy:', error);
+      toast.error('Failed to add allergy');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const getStatusColor = (status) => {
     switch (status.toLowerCase()) {
@@ -167,7 +272,10 @@ const HealthRecords = () => {
                     Access and manage your medical information
                   </p>
                 </div>
-                <button className="flex items-center px-4 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition-colors">
+                <button 
+                  onClick={() => setShowUploadModal(true)}
+                  className="flex items-center px-4 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition-colors"
+                >
                   <CloudArrowUpIcon className="h-5 w-5 mr-2" />
                   Upload Record
                 </button>
@@ -289,7 +397,10 @@ const HealthRecords = () => {
                   <div className="p-6">
                     <div className="flex justify-between items-center mb-6">
                       <h3 className="text-lg font-semibold text-gray-900">Medical Records</h3>
-                      <button className="flex items-center px-4 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition-colors">
+                      <button 
+                        onClick={() => setShowUploadModal(true)}
+                        className="flex items-center px-4 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition-colors"
+                      >
                         <PlusIcon className="h-5 w-5 mr-2" />
                         Add Record
                       </button>
@@ -343,7 +454,10 @@ const HealthRecords = () => {
                   <div className="p-6">
                     <div className="flex justify-between items-center mb-6">
                       <h3 className="text-lg font-semibold text-gray-900">Vital Signs History</h3>
-                      <button className="flex items-center px-4 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition-colors">
+                      <button 
+                        onClick={() => setShowVitalsModal(true)}
+                        className="flex items-center px-4 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition-colors"
+                      >
                         <PlusIcon className="h-5 w-5 mr-2" />
                         Add Vitals
                       </button>
@@ -382,7 +496,10 @@ const HealthRecords = () => {
                   <div className="p-6">
                     <div className="flex justify-between items-center mb-6">
                       <h3 className="text-lg font-semibold text-gray-900">Current Medications</h3>
-                      <button className="flex items-center px-4 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition-colors">
+                      <button 
+                        onClick={() => setShowMedicationModal(true)}
+                        className="flex items-center px-4 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition-colors"
+                      >
                         <PlusIcon className="h-5 w-5 mr-2" />
                         Add Medication
                       </button>
@@ -417,7 +534,10 @@ const HealthRecords = () => {
                   <div className="p-6">
                     <div className="flex justify-between items-center mb-6">
                       <h3 className="text-lg font-semibold text-gray-900">Known Allergies</h3>
-                      <button className="flex items-center px-4 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition-colors">
+                      <button 
+                        onClick={() => setShowAllergyModal(true)}
+                        className="flex items-center px-4 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition-colors"
+                      >
                         <PlusIcon className="h-5 w-5 mr-2" />
                         Add Allergy
                       </button>
@@ -443,6 +563,427 @@ const HealthRecords = () => {
             </div>
           </div>
         </div>
+
+        {/* Upload Modal */}
+        {showUploadModal && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div className="bg-white rounded-lg p-6 w-full max-w-md">
+              <div className="flex justify-between items-center mb-4">
+                <h3 className="text-lg font-semibold">Upload Health Record</h3>
+                <button onClick={() => setShowUploadModal(false)}>
+                  <XMarkIcon className="h-6 w-6 text-gray-400 hover:text-gray-600" />
+                </button>
+              </div>
+              <form onSubmit={handleUploadSubmit}>
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      File
+                    </label>
+                    <input
+                      type="file"
+                      onChange={(e) => setUploadForm({ ...uploadForm, file: e.target.files[0] })}
+                      className="w-full p-2 border border-gray-300 rounded-md"
+                      accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.txt"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Title
+                    </label>
+                    <input
+                      type="text"
+                      value={uploadForm.title}
+                      onChange={(e) => setUploadForm({ ...uploadForm, title: e.target.value })}
+                      className="w-full p-2 border border-gray-300 rounded-md"
+                      placeholder="Enter document title"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Description
+                    </label>
+                    <textarea
+                      value={uploadForm.description}
+                      onChange={(e) => setUploadForm({ ...uploadForm, description: e.target.value })}
+                      className="w-full p-2 border border-gray-300 rounded-md"
+                      rows="3"
+                      placeholder="Enter description"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Category
+                    </label>
+                    <select
+                      value={uploadForm.category}
+                      onChange={(e) => setUploadForm({ ...uploadForm, category: e.target.value })}
+                      className="w-full p-2 border border-gray-300 rounded-md"
+                    >
+                      <option value="general">General</option>
+                      <option value="lab">Lab Results</option>
+                      <option value="prescription">Prescription</option>
+                      <option value="consultation">Consultation</option>
+                    </select>
+                  </div>
+                </div>
+                <div className="flex justify-end space-x-3 mt-6">
+                  <button
+                    type="button"
+                    onClick={() => setShowUploadModal(false)}
+                    className="px-4 py-2 text-gray-600 border border-gray-300 rounded-md hover:bg-gray-50"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={loading}
+                    className="px-4 py-2 bg-teal-600 text-white rounded-md hover:bg-teal-700 disabled:opacity-50"
+                  >
+                    {loading ? 'Uploading...' : 'Upload'}
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        )}
+
+        {/* Vitals Modal */}
+        {showVitalsModal && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div className="bg-white rounded-lg p-6 w-full max-w-md">
+              <div className="flex justify-between items-center mb-4">
+                <h3 className="text-lg font-semibold">Add Vital Signs</h3>
+                <button onClick={() => setShowVitalsModal(false)}>
+                  <XMarkIcon className="h-6 w-6 text-gray-400 hover:text-gray-600" />
+                </button>
+              </div>
+              <form onSubmit={handleVitalsSubmit}>
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Blood Pressure (systolic/diastolic)
+                    </label>
+                    <input
+                      type="text"
+                      value={vitalsForm.bloodPressure}
+                      onChange={(e) => setVitalsForm({ ...vitalsForm, bloodPressure: e.target.value })}
+                      className="w-full p-2 border border-gray-300 rounded-md"
+                      placeholder="120/80"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Heart Rate (bpm)
+                    </label>
+                    <input
+                      type="number"
+                      value={vitalsForm.heartRate}
+                      onChange={(e) => setVitalsForm({ ...vitalsForm, heartRate: e.target.value })}
+                      className="w-full p-2 border border-gray-300 rounded-md"
+                      placeholder="72"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Temperature (°F)
+                    </label>
+                    <input
+                      type="number"
+                      step="0.1"
+                      value={vitalsForm.temperature}
+                      onChange={(e) => setVitalsForm({ ...vitalsForm, temperature: e.target.value })}
+                      className="w-full p-2 border border-gray-300 rounded-md"
+                      placeholder="98.6"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Weight (lbs)
+                    </label>
+                    <input
+                      type="number"
+                      step="0.1"
+                      value={vitalsForm.weight}
+                      onChange={(e) => setVitalsForm({ ...vitalsForm, weight: e.target.value })}
+                      className="w-full p-2 border border-gray-300 rounded-md"
+                      placeholder="150"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Height (inches)
+                    </label>
+                    <input
+                      type="number"
+                      step="0.1"
+                      value={vitalsForm.height}
+                      onChange={(e) => setVitalsForm({ ...vitalsForm, height: e.target.value })}
+                      className="w-full p-2 border border-gray-300 rounded-md"
+                      placeholder="68"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Date
+                    </label>
+                    <input
+                      type="date"
+                      value={vitalsForm.date}
+                      onChange={(e) => setVitalsForm({ ...vitalsForm, date: e.target.value })}
+                      className="w-full p-2 border border-gray-300 rounded-md"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Notes
+                    </label>
+                    <textarea
+                      value={vitalsForm.notes}
+                      onChange={(e) => setVitalsForm({ ...vitalsForm, notes: e.target.value })}
+                      className="w-full p-2 border border-gray-300 rounded-md"
+                      rows="3"
+                      placeholder="Additional notes"
+                    />
+                  </div>
+                </div>
+                <div className="flex justify-end space-x-3 mt-6">
+                  <button
+                    type="button"
+                    onClick={() => setShowVitalsModal(false)}
+                    className="px-4 py-2 text-gray-600 border border-gray-300 rounded-md hover:bg-gray-50"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={loading}
+                    className="px-4 py-2 bg-teal-600 text-white rounded-md hover:bg-teal-700 disabled:opacity-50"
+                  >
+                    {loading ? 'Adding...' : 'Add Vitals'}
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        )}
+
+        {/* Medication Modal */}
+        {showMedicationModal && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div className="bg-white rounded-lg p-6 w-full max-w-md">
+              <div className="flex justify-between items-center mb-4">
+                <h3 className="text-lg font-semibold">Add Medication</h3>
+                <button onClick={() => setShowMedicationModal(false)}>
+                  <XMarkIcon className="h-6 w-6 text-gray-400 hover:text-gray-600" />
+                </button>
+              </div>
+              <form onSubmit={handleMedicationSubmit}>
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Medication Name *
+                    </label>
+                    <input
+                      type="text"
+                      value={medicationForm.medicationName}
+                      onChange={(e) => setMedicationForm({ ...medicationForm, medicationName: e.target.value })}
+                      className="w-full p-2 border border-gray-300 rounded-md"
+                      placeholder="Enter medication name"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Dosage *
+                    </label>
+                    <input
+                      type="text"
+                      value={medicationForm.dosage}
+                      onChange={(e) => setMedicationForm({ ...medicationForm, dosage: e.target.value })}
+                      className="w-full p-2 border border-gray-300 rounded-md"
+                      placeholder="e.g., 10mg"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Frequency *
+                    </label>
+                    <input
+                      type="text"
+                      value={medicationForm.frequency}
+                      onChange={(e) => setMedicationForm({ ...medicationForm, frequency: e.target.value })}
+                      className="w-full p-2 border border-gray-300 rounded-md"
+                      placeholder="e.g., Once daily"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Start Date
+                    </label>
+                    <input
+                      type="date"
+                      value={medicationForm.startDate}
+                      onChange={(e) => setMedicationForm({ ...medicationForm, startDate: e.target.value })}
+                      className="w-full p-2 border border-gray-300 rounded-md"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      End Date (Optional)
+                    </label>
+                    <input
+                      type="date"
+                      value={medicationForm.endDate}
+                      onChange={(e) => setMedicationForm({ ...medicationForm, endDate: e.target.value })}
+                      className="w-full p-2 border border-gray-300 rounded-md"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Prescribed By
+                    </label>
+                    <input
+                      type="text"
+                      value={medicationForm.prescribedBy}
+                      onChange={(e) => setMedicationForm({ ...medicationForm, prescribedBy: e.target.value })}
+                      className="w-full p-2 border border-gray-300 rounded-md"
+                      placeholder="Doctor name"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Notes
+                    </label>
+                    <textarea
+                      value={medicationForm.notes}
+                      onChange={(e) => setMedicationForm({ ...medicationForm, notes: e.target.value })}
+                      className="w-full p-2 border border-gray-300 rounded-md"
+                      rows="3"
+                      placeholder="Additional notes"
+                    />
+                  </div>
+                </div>
+                <div className="flex justify-end space-x-3 mt-6">
+                  <button
+                    type="button"
+                    onClick={() => setShowMedicationModal(false)}
+                    className="px-4 py-2 text-gray-600 border border-gray-300 rounded-md hover:bg-gray-50"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={loading}
+                    className="px-4 py-2 bg-teal-600 text-white rounded-md hover:bg-teal-700 disabled:opacity-50"
+                  >
+                    {loading ? 'Adding...' : 'Add Medication'}
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        )}
+
+        {/* Allergy Modal */}
+        {showAllergyModal && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div className="bg-white rounded-lg p-6 w-full max-w-md">
+              <div className="flex justify-between items-center mb-4">
+                <h3 className="text-lg font-semibold">Add Allergy</h3>
+                <button onClick={() => setShowAllergyModal(false)}>
+                  <XMarkIcon className="h-6 w-6 text-gray-400 hover:text-gray-600" />
+                </button>
+              </div>
+              <form onSubmit={handleAllergySubmit}>
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Allergen *
+                    </label>
+                    <input
+                      type="text"
+                      value={allergyForm.allergen}
+                      onChange={(e) => setAllergyForm({ ...allergyForm, allergen: e.target.value })}
+                      className="w-full p-2 border border-gray-300 rounded-md"
+                      placeholder="e.g., Penicillin, Peanuts"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Severity *
+                    </label>
+                    <select
+                      value={allergyForm.severity}
+                      onChange={(e) => setAllergyForm({ ...allergyForm, severity: e.target.value })}
+                      className="w-full p-2 border border-gray-300 rounded-md"
+                      required
+                    >
+                      <option value="mild">Mild</option>
+                      <option value="moderate">Moderate</option>
+                      <option value="severe">Severe</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Reaction
+                    </label>
+                    <input
+                      type="text"
+                      value={allergyForm.reaction}
+                      onChange={(e) => setAllergyForm({ ...allergyForm, reaction: e.target.value })}
+                      className="w-full p-2 border border-gray-300 rounded-md"
+                      placeholder="e.g., Skin rash, Breathing difficulty"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Diagnosed Date
+                    </label>
+                    <input
+                      type="date"
+                      value={allergyForm.diagnosedDate}
+                      onChange={(e) => setAllergyForm({ ...allergyForm, diagnosedDate: e.target.value })}
+                      className="w-full p-2 border border-gray-300 rounded-md"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Notes
+                    </label>
+                    <textarea
+                      value={allergyForm.notes}
+                      onChange={(e) => setAllergyForm({ ...allergyForm, notes: e.target.value })}
+                      className="w-full p-2 border border-gray-300 rounded-md"
+                      rows="3"
+                      placeholder="Additional notes"
+                    />
+                  </div>
+                </div>
+                <div className="flex justify-end space-x-3 mt-6">
+                  <button
+                    type="button"
+                    onClick={() => setShowAllergyModal(false)}
+                    className="px-4 py-2 text-gray-600 border border-gray-300 rounded-md hover:bg-gray-50"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={loading}
+                    className="px-4 py-2 bg-teal-600 text-white rounded-md hover:bg-teal-700 disabled:opacity-50"
+                  >
+                    {loading ? 'Adding...' : 'Add Allergy'}
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        )}
       </DashboardLayout>
     </>
   );

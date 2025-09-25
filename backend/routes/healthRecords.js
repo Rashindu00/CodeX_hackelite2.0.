@@ -1,51 +1,307 @@
 const express = require('express');
-const { query } = require('../config/database');
-const { asyncHandler } = require('../middleware/errorHandler');
-const { authenticateToken, authorizeOwnership } = require('../middleware/auth');
+const multer = require('multer');
+const path = require('path');
+const fs = require('fs');
+const { authenticateToken } = require('../middleware/auth');
+const HealthRecord = require('../models/HealthRecord');
+const Patient = require('../models/Patient');
+const logger = require('../utils/logger');
 
 const router = express.Router();
 
-// @route   GET /api/health-records/:patientId
-// @desc    Get patient health records
+// Configure multer for file uploads
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    const uploadPath = 'uploads/health-records';
+    if (!fs.existsSync(uploadPath)) {
+      fs.mkdirSync(uploadPath, { recursive: true });
+    }
+    cb(null, uploadPath);
+  },
+  filename: (req, file, cb) => {
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+    cb(null, `health-record-${uniqueSuffix}${path.extname(file.originalname)}`);
+  }
+});
+
+const upload = multer({
+  storage: storage,
+  limits: {
+    fileSize: 10 * 1024 * 1024, // 10MB limit
+  },
+  fileFilter: (req, file, cb) => {
+    const allowedTypes = /jpeg|jpg|png|pdf|doc|docx|txt/;
+    const extname = allowedTypes.test(path.extname(file.originalname).toLowerCase());
+    const mimetype = allowedTypes.test(file.mimetype);
+    
+    if (mimetype && extname) {
+      return cb(null, true);
+    } else {
+      cb(new Error('Invalid file type. Only images, PDFs, and documents are allowed.'));
+    }
+  }
+});
+
+// @route   GET /api/health-records
+// @desc    Get all health records for authenticated patient
 // @access  Private
-router.get('/:patientId',
-  authenticateToken,
-  authorizeOwnership('patientId'),
-  asyncHandler(async (req, res) => {
-    const patientId = req.params.patientId;
-    const { type, limit = 20, offset = 0 } = req.query;
-
-    let whereClause = 'WHERE hr.patient_id = $1';
-    let queryParams = [patientId];
-
-    if (type) {
-      whereClause += ' AND hr.record_type = $2';
-      queryParams.push(type);
+router.get('/', authenticateToken, async (req, res) => {
+  try {
+    const patient = await Patient.findOne({ user: req.user.id });
+    if (!patient) {
+      return res.status(404).json({ error: { message: 'Patient profile not found' } });
     }
 
-    const healthRecords = await query(`
-      SELECT hr.*, 
-             hp.first_name as provider_first_name, 
-             hp.last_name as provider_last_name,
-             hp.specialization
-      FROM health_records hr
-      LEFT JOIN healthcare_providers hp ON hr.provider_id = hp.id
-      ${whereClause}
-      ORDER BY hr.date_recorded DESC, hr.created_at DESC
-      LIMIT $${queryParams.length + 1} OFFSET $${queryParams.length + 2}
-    `, [...queryParams, limit, offset]);
+    const { type, limit = 20, offset = 0 } = req.query;
+    
+    let filter = { patient: patient._id, status: 'active' };
+    if (type) {
+      filter.type = type;
+    }
+
+    const healthRecords = await HealthRecord.find(filter)
+      .sort({ date: -1, createdAt: -1 })
+      .limit(parseInt(limit))
+      .skip(parseInt(offset))
+      .populate('addedBy', 'firstName lastName role')
+      .populate('provider', 'firstName lastName specialization');
+
+    const totalRecords = await HealthRecord.countDocuments(filter);
 
     res.json({
       success: true,
       data: {
-        healthRecords: healthRecords.rows,
+        healthRecords,
         pagination: {
           limit: parseInt(limit),
-          offset: parseInt(offset)
+          offset: parseInt(offset),
+          total: totalRecords
         }
       }
     });
-  })
-);
+  } catch (error) {
+    logger.error('Error fetching health records:', error);
+    res.status(500).json({ error: { message: 'Failed to fetch health records' } });
+  }
+});
+
+// @route   POST /api/health-records/upload
+// @desc    Upload health record file
+// @access  Private
+router.post('/upload', authenticateToken, upload.single('file'), async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ error: { message: 'No file provided' } });
+    }
+
+    const patient = await Patient.findOne({ user: req.user.id });
+    if (!patient) {
+      return res.status(404).json({ error: { message: 'Patient profile not found' } });
+    }
+
+    const { title, description, category } = req.body;
+
+    const healthRecord = new HealthRecord({
+      patient: patient._id,
+      type: 'document',
+      title: title || req.file.originalname,
+      description: description || '',
+      category: category || 'general',
+      data: {
+        filename: req.file.filename,
+        originalName: req.file.originalname,
+        fileSize: req.file.size,
+        mimeType: req.file.mimetype,
+        filePath: req.file.path
+      },
+      addedBy: req.user.id,
+      date: new Date()
+    });
+
+    const savedRecord = await healthRecord.save();
+
+    res.status(201).json({
+      success: true,
+      message: 'Health record uploaded successfully',
+      data: savedRecord
+    });
+  } catch (error) {
+    logger.error('Error uploading health record:', error);
+    res.status(500).json({ error: { message: 'Failed to upload health record' } });
+  }
+});
+
+// @route   POST /api/health-records/vitals
+// @desc    Add vital signs
+// @access  Private
+router.post('/vitals', authenticateToken, async (req, res) => {
+  try {
+    const patient = await Patient.findOne({ user: req.user.id });
+    if (!patient) {
+      return res.status(404).json({ error: { message: 'Patient profile not found' } });
+    }
+
+    const { bloodPressure, heartRate, temperature, weight, height, notes, date } = req.body;
+
+    const vitalSigns = {};
+    if (bloodPressure) {
+      const bpParts = bloodPressure.split('/');
+      if (bpParts.length === 2) {
+        vitalSigns.bloodPressure = {
+          systolic: parseInt(bpParts[0]),
+          diastolic: parseInt(bpParts[1])
+        };
+      }
+    }
+    if (heartRate) vitalSigns.heartRate = parseInt(heartRate);
+    if (temperature) vitalSigns.temperature = parseFloat(temperature);
+    if (weight) vitalSigns.weight = parseFloat(weight);
+    if (height) vitalSigns.height = parseFloat(height);
+    if (notes) vitalSigns.notes = notes;
+
+    const healthRecord = new HealthRecord({
+      patient: patient._id,
+      type: 'vitals',
+      title: 'Vital Signs',
+      description: notes || '',
+      category: 'vitals',
+      data: vitalSigns,
+      addedBy: req.user.id,
+      date: date ? new Date(date) : new Date()
+    });
+
+    const savedRecord = await healthRecord.save();
+
+    res.status(201).json({
+      success: true,
+      message: 'Vital signs added successfully',
+      data: savedRecord
+    });
+  } catch (error) {
+    logger.error('Error adding vital signs:', error);
+    res.status(500).json({ error: { message: 'Failed to add vital signs' } });
+  }
+});
+
+// @route   POST /api/health-records/medications
+// @desc    Add medication
+// @access  Private
+router.post('/medications', authenticateToken, async (req, res) => {
+  try {
+    const patient = await Patient.findOne({ user: req.user.id });
+    if (!patient) {
+      return res.status(404).json({ error: { message: 'Patient profile not found' } });
+    }
+
+    const { 
+      medicationName, 
+      dosage, 
+      frequency, 
+      startDate, 
+      endDate, 
+      prescribedBy, 
+      notes,
+      status = 'active'
+    } = req.body;
+
+    if (!medicationName || !dosage || !frequency) {
+      return res.status(400).json({ 
+        error: { message: 'Medication name, dosage, and frequency are required' } 
+      });
+    }
+
+    const medicationData = {
+      name: medicationName,
+      dosage,
+      frequency,
+      startDate: startDate ? new Date(startDate) : new Date(),
+      status,
+      prescribedBy: prescribedBy || 'Self-reported',
+      notes: notes || ''
+    };
+
+    if (endDate) {
+      medicationData.endDate = new Date(endDate);
+    }
+
+    const healthRecord = new HealthRecord({
+      patient: patient._id,
+      type: 'medication',
+      title: `Medication: ${medicationName}`,
+      description: `${dosage} - ${frequency}`,
+      category: 'medication',
+      data: medicationData,
+      addedBy: req.user.id,
+      date: new Date()
+    });
+
+    const savedRecord = await healthRecord.save();
+
+    res.status(201).json({
+      success: true,
+      message: 'Medication added successfully',
+      data: savedRecord
+    });
+  } catch (error) {
+    logger.error('Error adding medication:', error);
+    res.status(500).json({ error: { message: 'Failed to add medication' } });
+  }
+});
+
+// @route   POST /api/health-records/allergies
+// @desc    Add allergy
+// @access  Private
+router.post('/allergies', authenticateToken, async (req, res) => {
+  try {
+    const patient = await Patient.findOne({ user: req.user.id });
+    if (!patient) {
+      return res.status(404).json({ error: { message: 'Patient profile not found' } });
+    }
+
+    const { 
+      allergen, 
+      severity, 
+      reaction, 
+      diagnosedDate, 
+      notes 
+    } = req.body;
+
+    if (!allergen || !severity) {
+      return res.status(400).json({ 
+        error: { message: 'Allergen and severity are required' } 
+      });
+    }
+
+    const allergyData = {
+      allergen,
+      severity,
+      reaction: reaction || '',
+      diagnosedDate: diagnosedDate ? new Date(diagnosedDate) : new Date(),
+      notes: notes || ''
+    };
+
+    const healthRecord = new HealthRecord({
+      patient: patient._id,
+      type: 'allergy',
+      title: `Allergy: ${allergen}`,
+      description: `Severity: ${severity}${reaction ? ` - ${reaction}` : ''}`,
+      category: 'allergy',
+      data: allergyData,
+      addedBy: req.user.id,
+      date: new Date()
+    });
+
+    const savedRecord = await healthRecord.save();
+
+    res.status(201).json({
+      success: true,
+      message: 'Allergy added successfully',
+      data: savedRecord
+    });
+  } catch (error) {
+    logger.error('Error adding allergy:', error);
+    res.status(500).json({ error: { message: 'Failed to add allergy' } });
+  }
+});
 
 module.exports = router;

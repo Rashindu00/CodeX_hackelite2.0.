@@ -1,6 +1,5 @@
 const jwt = require('jsonwebtoken');
-const { query } = require('../config/database');
-const { sessionUtils } = require('../config/redis');
+const User = require('../models/User');
 const logger = require('../utils/logger');
 const { asyncHandler } = require('./errorHandler');
 
@@ -25,22 +24,17 @@ const authenticateToken = asyncHandler(async (req, res, next) => {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
     
     // Check if user exists in database
-    const userResult = await query(
-      'SELECT id, email, role, is_active, email_verified FROM users WHERE id = $1',
-      [decoded.id]
-    );
+    const user = await User.findById(decoded.userId);
 
-    if (userResult.rows.length === 0) {
+    if (!user) {
       return res.status(401).json({
         success: false,
         error: { message: 'Token is not valid. User not found.' }
       });
     }
 
-    const user = userResult.rows[0];
-
     // Check if user is active
-    if (!user.is_active) {
+    if (!user.isActive) {
       return res.status(401).json({
         success: false,
         error: { message: 'Account is deactivated.' }
@@ -48,29 +42,23 @@ const authenticateToken = asyncHandler(async (req, res, next) => {
     }
 
     // Check if email is verified for sensitive operations
-    if (req.path.includes('sensitive') && !user.email_verified) {
+    if (req.path.includes('sensitive') && !user.emailVerified) {
       return res.status(403).json({
         success: false,
         error: { message: 'Email verification required for this action.' }
       });
     }
 
-    // Check session in Redis (optional, for additional security)
-    const session = await sessionUtils.getSession(user.id);
-    if (!session) {
-      logger.logSecurity('Invalid session', { userId: user.id, ip: req.ip });
-    }
-
     // Add user to request object
     req.user = {
-      id: user.id,
+      id: user._id,
       email: user.email,
       role: user.role,
-      isActive: user.is_active,
-      emailVerified: user.email_verified
+      isActive: user.isActive,
+      emailVerified: user.emailVerified
     };
 
-    logger.logAuth('Token verified', user.id, { ip: req.ip });
+    logger.info('Token verified', { userId: user._id, ip: req.ip });
     next();
   } catch (error) {
     logger.logSecurity('Invalid token attempt', { 
@@ -97,7 +85,7 @@ const authorizeRoles = (...roles) => {
     }
 
     if (!roles.includes(req.user.role)) {
-      logger.logSecurity('Unauthorized role access attempt', {
+      logger.info('Unauthorized role access attempt', {
         userId: req.user.id,
         userRole: req.user.role,
         requiredRoles: roles,
@@ -131,7 +119,7 @@ const authorizeOwnership = (resourceParam = 'id') => {
     if (userRole === 'patient') {
       // For patient role, check if the resource belongs to them
       if (resourceId !== userId.toString()) {
-        logger.logSecurity('Unauthorized resource access attempt', {
+        logger.info('Unauthorized resource access attempt', {
           userId,
           resourceId,
           path: req.path,
@@ -170,7 +158,7 @@ const sensitiveOperationLimit = (maxAttempts = 5, windowMs = 15 * 60 * 1000) => 
     
     // This would typically use Redis for rate limiting
     // For now, we'll just log the attempt
-    logger.logSecurity('Sensitive operation attempted', {
+    logger.info('Sensitive operation attempted', {
       userId: req.user.id,
       path: req.path,
       ip: req.ip
@@ -191,18 +179,14 @@ const optionalAuth = asyncHandler(async (req, res, next) => {
   if (token) {
     try {
       const decoded = jwt.verify(token, process.env.JWT_SECRET);
-      const userResult = await query(
-        'SELECT id, email, role, is_active FROM users WHERE id = $1',
-        [decoded.id]
-      );
+      const user = await User.findById(decoded.userId);
 
-      if (userResult.rows.length > 0) {
-        const user = userResult.rows[0];
+      if (user) {
         req.user = {
-          id: user.id,
+          id: user._id,
           email: user.email,
           role: user.role,
-          isActive: user.is_active
+          isActive: user.isActive
         };
       }
     } catch (error) {

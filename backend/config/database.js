@@ -1,118 +1,101 @@
-const { Pool } = require('pg');
+const mongoose = require('mongoose');
 const logger = require('../utils/logger');
 
-// Database configuration
-const dbConfig = {
-  host: process.env.DB_HOST || 'localhost',
-  port: process.env.DB_PORT || 5432,
-  database: process.env.DB_NAME || 'mediconnect_ai',
-  user: process.env.DB_USER || 'postgres',
-  password: process.env.DB_PASSWORD || '',
-  max: 20, // Maximum number of clients in the pool
-  idleTimeoutMillis: 30000, // Close idle clients after 30 seconds
-  connectionTimeoutMillis: 2000, // Return an error after 2 seconds if connection could not be established
-  ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false,
+// MongoDB configuration
+const mongoConfig = {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+  maxPoolSize: 20, // Maximum number of connections in the pool
+  serverSelectionTimeoutMS: 5000, // Keep trying to send operations for 5 seconds
+  socketTimeoutMS: 45000, // Close sockets after 45 seconds of inactivity
+  bufferCommands: false // Disable mongoose buffering
 };
 
-// Create connection pool
-const pool = new Pool(dbConfig);
-
-// Handle pool errors
-pool.on('error', (err) => {
-  logger.error('Unexpected error on idle client:', err);
-  process.exit(-1);
-});
-
-// Database connection function
+// MongoDB connection function
 async function connectDatabase() {
   try {
-    const client = await pool.connect();
-    logger.info('Database connection established successfully');
+    const mongoUri = process.env.MONGODB_URI || 'mongodb://localhost:27017/mediconnect_ai';
     
-    // Test the connection
-    const result = await client.query('SELECT NOW()');
-    logger.info(`Database connection test successful. Server time: ${result.rows[0].now}`);
+    await mongoose.connect(mongoUri, mongoConfig);
     
-    client.release();
-    return pool;
+    logger.info('MongoDB connection established successfully');
+    logger.info(`Connected to database: ${mongoose.connection.name}`);
+    
+    return mongoose.connection;
   } catch (error) {
-    logger.error('Failed to connect to the database:', error);
+    logger.error('Failed to connect to MongoDB:', error);
     throw error;
   }
 }
 
-// Query function with error handling
-async function query(text, params) {
-  const start = Date.now();
+// Handle MongoDB connection events
+mongoose.connection.on('error', (err) => {
+  logger.error('MongoDB connection error:', err);
+});
+
+mongoose.connection.on('disconnected', () => {
+  logger.warn('MongoDB disconnected');
+});
+
+mongoose.connection.on('reconnected', () => {
+  logger.info('MongoDB reconnected');
+});
+
+// Graceful shutdown
+process.on('SIGINT', async () => {
   try {
-    const result = await pool.query(text, params);
-    const duration = Date.now() - start;
-    
-    if (process.env.NODE_ENV === 'development') {
-      logger.debug(`Query executed in ${duration}ms: ${text}`);
-    }
-    
-    return result;
+    await mongoose.connection.close();
+    logger.info('MongoDB connection closed through app termination');
+    process.exit(0);
   } catch (error) {
-    logger.error('Database query error:', {
-      query: text,
-      params: params,
-      error: error.message
-    });
-    throw error;
+    logger.error('Error closing MongoDB connection:', error);
+    process.exit(1);
   }
-}
+});
 
-// Transaction helper
+// MongoDB transaction helper
 async function transaction(callback) {
-  const client = await pool.connect();
+  const session = await mongoose.startSession();
   
   try {
-    await client.query('BEGIN');
-    const result = await callback(client);
-    await client.query('COMMIT');
+    session.startTransaction();
+    const result = await callback(session);
+    await session.commitTransaction();
     return result;
   } catch (error) {
-    await client.query('ROLLBACK');
-    logger.error('Transaction failed:', error);
+    await session.abortTransaction();
+    logger.error('MongoDB transaction failed:', error);
     throw error;
   } finally {
-    client.release();
+    session.endSession();
   }
-}
-
-// Get a client from the pool (for complex operations)
-async function getClient() {
-  return await pool.connect();
 }
 
 // Close database connection (for graceful shutdown)
 async function closeDatabase() {
   try {
-    await pool.end();
-    logger.info('Database connection pool closed');
+    await mongoose.connection.close();
+    logger.info('MongoDB connection closed');
   } catch (error) {
-    logger.error('Error closing database connection:', error);
+    logger.error('Error closing MongoDB connection:', error);
   }
 }
 
 // Health check function
 async function healthCheck() {
   try {
-    const result = await query('SELECT 1 as health_check');
-    return result.rowCount === 1;
+    const state = mongoose.connection.readyState;
+    return state === 1; // 1 = connected
   } catch (error) {
-    logger.error('Database health check failed:', error);
+    logger.error('MongoDB health check failed:', error);
     return false;
   }
 }
 
 module.exports = {
-  pool,
+  mongoose,
   connectDatabase,
-  query,
   transaction,
-  getClient,
   closeDatabase,
   healthCheck
 };

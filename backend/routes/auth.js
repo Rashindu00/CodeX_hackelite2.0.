@@ -4,8 +4,9 @@ const jwt = require('jsonwebtoken');
 const { body, validationResult } = require('express-validator');
 const { v4: uuidv4 } = require('uuid');
 
-const { query, transaction } = require('../config/database');
-const { sessionUtils } = require('../config/redis');
+const User = require('../models/User');
+const Patient = require('../models/Patient');
+const HealthcareProvider = require('../models/HealthcareProvider');
 const { asyncHandler, formatValidationErrors } = require('../middleware/errorHandler');
 const { authenticateToken, sensitiveOperationLimit } = require('../middleware/auth');
 const logger = require('../utils/logger');
@@ -118,72 +119,69 @@ router.post('/register', registerValidation, asyncHandler(async (req, res) => {
     }
   }
 
-  const result = await transaction(async (client) => {
-    // Check if user already exists
-    const existingUser = await client.query(
-      'SELECT id FROM users WHERE email = $1',
-      [email]
-    );
+  // Check if user already exists
+  const existingUser = await User.findOne({ email });
+  if (existingUser) {
+    return res.status(400).json({
+      success: false,
+      error: { message: 'User with this email already exists' }
+    });
+  }
 
-    if (existingUser.rows.length > 0) {
-      throw new Error('User with this email already exists');
+  // Check if license number is already used (for providers)
+  if (role === 'provider') {
+    const existingProvider = await HealthcareProvider.findOne({ licenseNumber });
+    if (existingProvider) {
+      return res.status(400).json({
+        success: false,
+        error: { message: 'Healthcare provider with this license number already exists' }
+      });
     }
+  }
 
-    // Check if license number is already used (for providers)
-    if (role === 'provider') {
-      const existingProvider = await client.query(
-        'SELECT id FROM healthcare_providers WHERE license_number = $1',
-        [licenseNumber]
-      );
+  // Generate email verification token
+  const emailVerificationToken = uuidv4();
 
-      if (existingProvider.rows.length > 0) {
-        throw new Error('Healthcare provider with this license number already exists');
-      }
-    }
-
-    // Hash password
-    const saltRounds = parseInt(process.env.BCRYPT_ROUNDS) || 12;
-    const passwordHash = await bcrypt.hash(password, saltRounds);
-
-    // Generate email verification token
-    const emailVerificationToken = uuidv4();
-
-    // Create user
-    const userResult = await client.query(
-      `INSERT INTO users (email, password_hash, role, email_verification_token)
-       VALUES ($1, $2, $3, $4)
-       RETURNING id, email, role, created_at`,
-      [email, passwordHash, role, emailVerificationToken]
-    );
-
-    const user = userResult.rows[0];
-
-    // Create role-specific profile
-    if (role === 'patient') {
-      await client.query(
-        `INSERT INTO patients (id, first_name, last_name, phone_number, date_of_birth, gender)
-         VALUES ($1, $2, $3, $4, $5, $6)`,
-        [user.id, firstName, lastName, phoneNumber, dateOfBirth, gender]
-      );
-    } else if (role === 'provider') {
-      await client.query(
-        `INSERT INTO healthcare_providers (id, first_name, last_name, phone_number, specialization, license_number)
-         VALUES ($1, $2, $3, $4, $5, $6)`,
-        [user.id, firstName, lastName, phoneNumber, specialization, licenseNumber]
-      );
-    }
-
-    // TODO: Send email verification email
-    logger.logAuth('User registered', user.id, { role, email });
-
-    return {
-      id: user.id,
-      email: user.email,
-      role: user.role,
-      emailVerificationToken,
-      createdAt: user.created_at
-    };
+  // Create user
+  const user = new User({
+    firstName,
+    lastName,
+    email,
+    password,
+    phoneNumber,
+    role,
+    emailVerificationToken
   });
+
+  await user.save();
+
+  // Create role-specific profile
+  if (role === 'patient') {
+    const patient = new Patient({
+      user: user._id,
+      dateOfBirth,
+      gender
+    });
+    await patient.save();
+  } else if (role === 'provider') {
+    const provider = new HealthcareProvider({
+      user: user._id,
+      specialization,
+      licenseNumber
+    });
+    await provider.save();
+  }
+
+  // TODO: Send email verification email
+  logger.info('User registered', { userId: user._id, role, email });
+
+  const result = {
+    id: user._id,
+    email: user.email,
+    role: user.role,
+    emailVerificationToken,
+    createdAt: user.createdAt
+  };
 
   res.status(201).json({
     success: true,
@@ -217,27 +215,19 @@ router.post('/login', loginValidation, asyncHandler(async (req, res) => {
   const { email, password } = req.body;
 
   // Get user with password
-  const userResult = await query(
-    `SELECT u.id, u.email, u.password_hash, u.role, u.is_active, u.email_verified,
-            u.login_attempts, u.locked_until, u.last_login
-     FROM users u 
-     WHERE u.email = $1`,
-    [email]
-  );
+  const user = await User.findOne({ email }).select('+password');
 
-  if (userResult.rows.length === 0) {
-    logger.logSecurity('Login attempt with invalid email', { email, ip: req.ip });
+  if (!user) {
+    logger.info('Login attempt with invalid email', { email, ip: req.ip });
     return res.status(401).json({
       success: false,
       error: { message: 'Invalid email or password' }
     });
   }
 
-  const user = userResult.rows[0];
-
   // Check if account is locked
-  if (user.locked_until && new Date() < new Date(user.locked_until)) {
-    logger.logSecurity('Login attempt on locked account', { userId: user.id, email, ip: req.ip });
+  if (user.lockedUntil && new Date() < user.lockedUntil) {
+    logger.info('Login attempt on locked account', { userId: user._id, email, ip: req.ip });
     return res.status(423).json({
       success: false,
       error: { message: 'Account is temporarily locked due to too many failed login attempts' }
@@ -245,8 +235,8 @@ router.post('/login', loginValidation, asyncHandler(async (req, res) => {
   }
 
   // Check if account is active
-  if (!user.is_active) {
-    logger.logSecurity('Login attempt on inactive account', { userId: user.id, email, ip: req.ip });
+  if (!user.isActive) {
+    logger.info('Login attempt on inactive account', { userId: user._id, email, ip: req.ip });
     return res.status(401).json({
       success: false,
       error: { message: 'Account is deactivated. Please contact support.' }
@@ -254,20 +244,19 @@ router.post('/login', loginValidation, asyncHandler(async (req, res) => {
   }
 
   // Verify password
-  const isPasswordValid = await bcrypt.compare(password, user.password_hash);
+  const isPasswordValid = await user.comparePassword(password);
   
   if (!isPasswordValid) {
     // Increment login attempts
-    const loginAttempts = (user.login_attempts || 0) + 1;
+    const loginAttempts = (user.loginAttempts || 0) + 1;
     const lockUntil = loginAttempts >= 5 ? new Date(Date.now() + 15 * 60 * 1000) : null; // Lock for 15 minutes after 5 attempts
 
-    await query(
-      'UPDATE users SET login_attempts = $1, locked_until = $2 WHERE id = $3',
-      [loginAttempts, lockUntil, user.id]
-    );
+    user.loginAttempts = loginAttempts;
+    user.lockedUntil = lockUntil;
+    await user.save();
 
-    logger.logSecurity('Failed login attempt', { 
-      userId: user.id, 
+    logger.info('Failed login attempt', { 
+      userId: user._id, 
       email, 
       attempts: loginAttempts,
       ip: req.ip 
@@ -280,44 +269,62 @@ router.post('/login', loginValidation, asyncHandler(async (req, res) => {
   }
 
   // Reset login attempts on successful login
-  await query(
-    'UPDATE users SET login_attempts = 0, locked_until = NULL, last_login = CURRENT_TIMESTAMP WHERE id = $1',
-    [user.id]
-  );
+  user.loginAttempts = 0;
+  user.lockedUntil = null;
+  user.lastLogin = new Date();
+  await user.save();
 
   // Generate tokens
-  const { accessToken, refreshToken } = generateTokens(user);
+  const accessToken = jwt.sign(
+    { 
+      userId: user._id, 
+      userType: user.role,
+      email: user.email 
+    },
+    process.env.JWT_SECRET,
+    { expiresIn: '15m' }
+  );
 
-  // Store session and refresh token in Redis
-  const sessionData = {
-    userId: user.id,
-    email: user.email,
-    role: user.role,
-    loginTime: new Date().toISOString(),
-    ipAddress: req.ip,
-    userAgent: req.get('User-Agent')
-  };
+  const refreshToken = jwt.sign(
+    { userId: user._id },
+    process.env.JWT_REFRESH_SECRET,
+    { expiresIn: '7d' }
+  );
 
-  await sessionUtils.storeSession(user.id, sessionData);
-  await sessionUtils.storeRefreshToken(user.id, refreshToken);
+  // Store refresh token
+  user.refreshToken = refreshToken;
+  await user.save();
 
-  logger.logAuth('User logged in', user.id, { email, ip: req.ip });
+  // Get additional user information based on user type
+  let additionalInfo = {};
+  if (user.role === 'patient') {
+    const patientInfo = await Patient.findOne({ user: user._id });
+    additionalInfo = patientInfo || {};
+  } else if (user.role === 'provider') {
+    const providerInfo = await HealthcareProvider.findOne({ user: user._id });
+    additionalInfo = providerInfo || {};
+  }
+
+  logger.info('Successful login', { 
+    userId: user._id, 
+    email, 
+    userType: user.role,
+    ip: req.ip 
+  });
 
   res.json({
     success: true,
-    message: 'Login successful',
     data: {
+      accessToken,
+      refreshToken,
       user: {
-        id: user.id,
+        id: user._id,
         email: user.email,
-        role: user.role,
-        isActive: user.is_active,
-        emailVerified: user.email_verified,
-        lastLogin: user.last_login
-      },
-      tokens: {
-        accessToken,
-        refreshToken
+        userType: user.role,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        isActive: user.isActive,
+        ...additionalInfo
       }
     }
   });
@@ -329,11 +336,10 @@ router.post('/login', loginValidation, asyncHandler(async (req, res) => {
 router.post('/logout', authenticateToken, asyncHandler(async (req, res) => {
   const userId = req.user.id;
 
-  // Remove session and refresh token from Redis
-  await sessionUtils.deleteSession(userId);
-  await sessionUtils.deleteRefreshToken(userId);
+  // Clear refresh token in database
+  await User.findByIdAndUpdate(userId, { refreshToken: null });
 
-  logger.logAuth('User logged out', userId);
+  logger.info('User logged out', { userId });
 
   res.json({
     success: true,
@@ -357,43 +363,54 @@ router.post('/refresh-token', asyncHandler(async (req, res) => {
   try {
     const decoded = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET);
     
-    // Check if refresh token exists in Redis
-    const storedToken = await sessionUtils.getRefreshToken(decoded.id);
-    if (!storedToken || storedToken !== refreshToken) {
-      return res.status(401).json({
-        success: false,
-        error: { message: 'Invalid refresh token' }
-      });
-    }
+
 
     // Get updated user data
-    const userResult = await query(
-      'SELECT id, email, role, is_active FROM users WHERE id = $1',
-      [decoded.id]
-    );
+    const user = await User.findById(decoded.userId).select('+refreshToken');
 
-    if (userResult.rows.length === 0 || !userResult.rows[0].is_active) {
+    if (!user || !user.isActive) {
       return res.status(401).json({
         success: false,
         error: { message: 'User not found or inactive' }
       });
     }
 
-    const user = userResult.rows[0];
+    // Verify stored refresh token matches
+    if (user.refreshToken !== refreshToken) {
+      return res.status(401).json({
+        success: false,
+        error: { message: 'Invalid refresh token' }
+      });
+    }
 
     // Generate new tokens
-    const { accessToken, refreshToken: newRefreshToken } = generateTokens(user);
+    const newAccessToken = jwt.sign(
+      { 
+        userId: user._id, 
+        userType: user.role,
+        email: user.email 
+      },
+      process.env.JWT_SECRET,
+      { expiresIn: '15m' }
+    );
 
-    // Update refresh token in Redis
-    await sessionUtils.storeRefreshToken(user.id, newRefreshToken);
+    const newRefreshToken = jwt.sign(
+      { userId: user._id },
+      process.env.JWT_REFRESH_SECRET,
+      { expiresIn: '7d' }
+    );
 
-    logger.logAuth('Token refreshed', user.id);
+    // Update refresh token
+    user.refreshToken = newRefreshToken;
+    await user.save();
+
+    logger.info('Token refreshed', { userId: user._id });
 
     res.json({
       success: true,
       data: {
         tokens: {
-          accessToken,
+          accessToken: newAccessToken,
           refreshToken: newRefreshToken
         }
       }
@@ -425,20 +442,23 @@ router.post('/verify-email', asyncHandler(async (req, res) => {
     });
   }
 
-  const result = await query(
-    'UPDATE users SET email_verified = TRUE, email_verification_token = NULL WHERE email_verification_token = $1 RETURNING id, email',
-    [token]
+  const user = await User.findOneAndUpdate(
+    { emailVerificationToken: token },
+    { 
+      emailVerified: true, 
+      emailVerificationToken: null 
+    },
+    { new: true }
   );
 
-  if (result.rows.length === 0) {
+  if (!user) {
     return res.status(400).json({
       success: false,
       error: { message: 'Invalid or expired verification token' }
     });
   }
 
-  const user = result.rows[0];
-  logger.logAuth('Email verified', user.id);
+  logger.info('Email verified', { userId: user._id });
 
   res.json({
     success: true,
@@ -467,9 +487,13 @@ router.post('/forgot-password', [
   const resetToken = uuidv4();
   const resetExpires = new Date(Date.now() + 60 * 60 * 1000); // 1 hour
 
-  const result = await query(
-    'UPDATE users SET password_reset_token = $1, password_reset_expires = $2 WHERE email = $3 RETURNING id',
-    [resetToken, resetExpires, email]
+  const user = await User.findOneAndUpdate(
+    { email },
+    { 
+      passwordResetToken: resetToken, 
+      passwordResetExpires: resetExpires 
+    },
+    { new: true }
   );
 
   // Always return success to prevent email enumeration
@@ -479,9 +503,8 @@ router.post('/forgot-password', [
   });
 
   // Only log and send email if user exists
-  if (result.rows.length > 0) {
-    const userId = result.rows[0].id;
-    logger.logAuth('Password reset requested', userId, { email });
+  if (user) {
+    logger.info('Password reset requested', { userId: user._id, email });
     // TODO: Send password reset email
   }
 }));
@@ -511,35 +534,26 @@ router.post('/reset-password', [
   const { token, password } = req.body;
 
   // Check if token is valid and not expired
-  const userResult = await query(
-    'SELECT id FROM users WHERE password_reset_token = $1 AND password_reset_expires > CURRENT_TIMESTAMP',
-    [token]
-  );
+  const user = await User.findOne({ 
+    passwordResetToken: token,
+    passwordResetExpires: { $gt: new Date() }
+  });
 
-  if (userResult.rows.length === 0) {
+  if (!user) {
     return res.status(400).json({
       success: false,
       error: { message: 'Invalid or expired reset token' }
     });
   }
 
-  const userId = userResult.rows[0].id;
+  // Set new password and clear reset token
+  user.password = password; // Will be hashed by pre-save middleware
+  user.passwordResetToken = null;
+  user.passwordResetExpires = null;
+  user.refreshToken = null; // Clear refresh token
+  await user.save();
 
-  // Hash new password
-  const saltRounds = parseInt(process.env.BCRYPT_ROUNDS) || 12;
-  const passwordHash = await bcrypt.hash(password, saltRounds);
-
-  // Update password and clear reset token
-  await query(
-    'UPDATE users SET password_hash = $1, password_reset_token = NULL, password_reset_expires = NULL WHERE id = $2',
-    [passwordHash, userId]
-  );
-
-  // Clear all sessions for this user
-  await sessionUtils.deleteSession(userId);
-  await sessionUtils.deleteRefreshToken(userId);
-
-  logger.logAuth('Password reset completed', userId);
+  logger.info('Password reset completed', { userId: user._id });
 
   res.json({
     success: true,
@@ -554,47 +568,42 @@ router.get('/me', authenticateToken, asyncHandler(async (req, res) => {
   const userId = req.user.id;
   const userRole = req.user.role;
 
-  let userQuery = `
-    SELECT u.id, u.email, u.role, u.is_active, u.email_verified, u.last_login, u.created_at
-    FROM users u 
-    WHERE u.id = $1
-  `;
-
-  if (userRole === 'patient') {
-    userQuery = `
-      SELECT u.id, u.email, u.role, u.is_active, u.email_verified, u.last_login, u.created_at,
-             p.first_name, p.last_name, p.date_of_birth, p.gender, p.phone_number,
-             p.address, p.city, p.country, p.preferred_language, p.profile_picture_url
-      FROM users u 
-      JOIN patients p ON u.id = p.id
-      WHERE u.id = $1
-    `;
-  } else if (userRole === 'provider') {
-    userQuery = `
-      SELECT u.id, u.email, u.role, u.is_active, u.email_verified, u.last_login, u.created_at,
-             hp.first_name, hp.last_name, hp.title, hp.specialization, hp.license_number,
-             hp.phone_number, hp.years_of_experience, hp.bio, hp.verified, hp.rating,
-             hp.total_consultations, hp.profile_picture_url
-      FROM users u 
-      JOIN healthcare_providers hp ON u.id = hp.id
-      WHERE u.id = $1
-    `;
-  }
-
-  const result = await query(userQuery, [userId]);
-
-  if (result.rows.length === 0) {
+  // Get user base info
+  const user = await User.findById(userId);
+  
+  if (!user) {
     return res.status(404).json({
       success: false,
       error: { message: 'User not found' }
     });
   }
 
-  const user = result.rows[0];
+  let userData = {
+    id: user._id,
+    email: user.email,
+    userType: user.role,
+    isActive: user.isActive,
+    emailVerified: user.emailVerified,
+    lastLogin: user.lastLogin,
+    createdAt: user.createdAt
+  };
+
+  // Get additional info based on user type
+  if (userRole === 'patient') {
+    const patientInfo = await Patient.findOne({ user: user._id });
+    if (patientInfo) {
+      userData = { ...userData, ...patientInfo.toObject() };
+    }
+  } else if (userRole === 'provider') {
+    const providerInfo = await HealthcareProvider.findOne({ user: user._id });
+    if (providerInfo) {
+      userData = { ...userData, ...providerInfo.toObject() };
+    }
+  }
 
   res.json({
     success: true,
-    data: { user }
+    data: { user: userData }
   });
 }));
 
