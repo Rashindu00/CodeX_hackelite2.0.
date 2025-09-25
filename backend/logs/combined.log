@@ -585,3 +585,49 @@
 {"event":"Invalid session","ip":"::1","level":"\u001b[33mwarn\u001b[39m","message":"\u001b[33mSECURITY: Invalid session\u001b[39m","timestamp":"2025-09-11 22:51:45:5145","userId":"84283dff-17e2-4832-a341-999d7b4f0557"}
 {"action":"Token verified","ip":"::1","level":"\u001b[32minfo\u001b[39m","message":"\u001b[32mAUTH: Token verified\u001b[39m","timestamp":"2025-09-11 22:51:45:5145","userId":"84283dff-17e2-4832-a341-999d7b4f0557"}
 {"action":"User logged in","email":"devdyanamics22@gmail.com","ip":"::1","level":"\u001b[32minfo\u001b[39m","message":"\u001b[32mAUTH: User logged in\u001b[39m","timestamp":"2025-09-11 23:05:42:542","userId":"84283dff-17e2-4832-a341-999d7b4f0557"}
+{"level":"\u001b[32minfo\u001b[39m","message":"\u001b[32mMongoDB connection established successfully\u001b[39m","timestamp":"2025-09-25 09:42:22:4222"}
+{"level":"\u001b[32minfo\u001b[39m","message":"\u001b[32mConnected to database: mediconnect_ai\u001b[39m","timestamp":"2025-09-25 09:42:22:4222"}
+{"level":"\u001b[32minfo\u001b[39m","message":"\u001b[32m✅ Database connected successfully\u001b[39m","timestamp":"2025-09-25 09:42:22:4222"}
+{"level":"\u001b[33mwarn\u001b[39m","message":"\u001b[33m⚠️ Redis connection timeout - continuing without caching\u001b[39m","timestamp":"2025-09-25 09:42:24:4224"}
+{"level":"\u001b[32minfo\u001b[39m","message":"\u001b[32m✅ Redis connected successfully\u001b[39m","timestamp":"2025-09-25 09:42:24:4224"}
+{"level":"\u001b[32minfo\u001b[39m","message":"\u001b[32m🚀 MediConnect AI server running on port 5000\u001b[39m","timestamp":"2025-09-25 09:42:24:4224"}
+{"level":"\u001b[32minfo\u001b[39m","message":"\u001b[32m🌍 Environment: development\u001b[39m","timestamp":"2025-09-25 09:42:24:4224"}
+{"level":"\u001b[32minfo\u001b[39m","message":"\u001b[32m📊 Health check: http://localhost:5000/health\u001b[39m","timestamp":"2025-09-25 09:42:24:4224"}
+{"level":"\u001b[32minfo\u001b[39m","message":"\u001b[32mSIGINT received. Shutting down gracefully...\u001b[39m","timestamp":"2025-09-25 09:43:16:4316"}
+{"level":"\u001b[32minfo\u001b[39m","message":"\u001b[32mMongoDB connection established successfully\u001b[39m","timestamp":"2025-09-25 09:43:37:4337"}
+{"level":"\u001b[32minfo\u001b[39m","message":"\u001b[32mConnected to database: mediconnect_ai\u001b[39m","timestamp":"2025-09-25 09:43:37:4337"}
+{"level":"\u001b[32minfo\u001b[39m","message":"\u001b[32m✅ Database connected successfully\u001b[39m","timestamp":"2025-09-25 09:43:37:4337"}
+{"level":"\u001b[33mwarn\u001b[39m","message":"\u001b[33m⚠️ Redis connection timeout - continuing without caching\u001b[39m","timestamp":"2025-09-25 09:43:39:4339"}
+{"level":"\u001b[32minfo\u001b[39m","message":"\u001b[32m✅ Redis connected successfully\u001b[39m","timestamp":"2025-09-25 09:43:39:4339"}
+{"level":"\u001b[32minfo\u001b[39m","message":"\u001b[32m🚀 MediConnect AI server running on port 5000\u001b[39m","timestamp":"2025-09-25 09:43:39:4339"}
+{"level":"\u001b[32minfo\u001b[39m","message":"\u001b[32m🌍 Environment: development\u001b[39m","timestamp":"2025-09-25 09:43:39:4339"}
+{"level":"\u001b[32minfo\u001b[39m","message":"\u001b[32m📊 Health check: http://localhost:5000/health\u001b[39m","timestamp":"2025-09-25 09:43:39:4339"}
+{"level":"\u001b[32minfo\u001b[39m","message":"\u001b[32mMongoDB connection established successfully\u001b[39m","timestamp":"2025-09-25 09:44:05:445"}
+{"level":"\u001b[32minfo\u001b[39m","message":"\u001b[32mConnected to database: mediconnect_ai\u001b[39m","timestamp":"2025-09-25 09:44:05:445"}
+{"level":"\u001b[32minfo\u001b[39m","message":"\u001b[32m✅ Database connected successfully\u001b[39m","timestamp":"2025-09-25 09:44:05:445"}
+{"level":"\u001b[33mwarn\u001b[39m","message":"\u001b[33m⚠️ Redis connection timeout - continuing without caching\u001b[39m","timestamp":"2025-09-25 09:44:07:447"}
+{"level":"\u001b[32minfo\u001b[39m","message":"\u001b[32m✅ Redis connected successfully\u001b[39m","timestamp":"2025-09-25 09:44:07:447"}
+{"level":"\u001b[32minfo\u001b[39m","message":"\u001b[32m🚀 MediConnect AI server running on port 5000\u001b[39m","timestamp":"2025-09-25 09:44:08:448"}
+{"level":"\u001b[32minfo\u001b[39m","message":"\u001b[32m🌍 Environment: development\u001b[39m","timestamp":"2025-09-25 09:44:08:448"}
+{"level":"\u001b[32minfo\u001b[39m","message":"\u001b[32m📊 Health check: http://localhost:5000/health\u001b[39m","timestamp":"2025-09-25 09:44:08:448"}
+{"level":"\u001b[32minfo\u001b[39m","message":"\u001b[32mMongoDB connection established successfully\u001b[39m","timestamp":"2025-09-25 09:46:06:466"}
+{"level":"\u001b[32minfo\u001b[39m","message":"\u001b[32mConnected to database: mediconnect_ai\u001b[39m","timestamp":"2025-09-25 09:46:06:466"}
+{"level":"\u001b[32minfo\u001b[39m","message":"\u001b[32m✅ Database connected successfully\u001b[39m","timestamp":"2025-09-25 09:46:06:466"}
+{"level":"\u001b[33mwarn\u001b[39m","message":"\u001b[33m⚠️ Redis not available - continuing without caching\u001b[39m","timestamp":"2025-09-25 09:46:06:466"}
+{"level":"\u001b[32minfo\u001b[39m","message":"\u001b[32m🚀 MediConnect AI server running on port 5000\u001b[39m","timestamp":"2025-09-25 09:46:06:466"}
+{"level":"\u001b[32minfo\u001b[39m","message":"\u001b[32m🌍 Environment: development\u001b[39m","timestamp":"2025-09-25 09:46:06:466"}
+{"level":"\u001b[32minfo\u001b[39m","message":"\u001b[32m📊 Health check: http://localhost:5000/health\u001b[39m","timestamp":"2025-09-25 09:46:06:466"}
+{"level":"\u001b[32minfo\u001b[39m","message":"\u001b[32mMongoDB connection established successfully\u001b[39m","timestamp":"2025-09-25 09:46:54:4654"}
+{"level":"\u001b[32minfo\u001b[39m","message":"\u001b[32mConnected to database: mediconnect_ai\u001b[39m","timestamp":"2025-09-25 09:46:54:4654"}
+{"level":"\u001b[32minfo\u001b[39m","message":"\u001b[32m✅ Database connected successfully\u001b[39m","timestamp":"2025-09-25 09:46:54:4654"}
+{"level":"\u001b[32minfo\u001b[39m","message":"\u001b[32m✅ Using MongoDB for session management\u001b[39m","timestamp":"2025-09-25 09:46:54:4654"}
+{"level":"\u001b[32minfo\u001b[39m","message":"\u001b[32m🚀 MediConnect AI server running on port 5000\u001b[39m","timestamp":"2025-09-25 09:46:54:4654"}
+{"level":"\u001b[32minfo\u001b[39m","message":"\u001b[32m🌍 Environment: development\u001b[39m","timestamp":"2025-09-25 09:46:54:4654"}
+{"level":"\u001b[32minfo\u001b[39m","message":"\u001b[32m📊 Health check: http://localhost:5000/health\u001b[39m","timestamp":"2025-09-25 09:46:54:4654"}
+{"level":"\u001b[32minfo\u001b[39m","message":"\u001b[32mMongoDB connection established successfully\u001b[39m","timestamp":"2025-09-25 09:47:23:4723"}
+{"level":"\u001b[32minfo\u001b[39m","message":"\u001b[32mConnected to database: mediconnect_ai\u001b[39m","timestamp":"2025-09-25 09:47:23:4723"}
+{"level":"\u001b[32minfo\u001b[39m","message":"\u001b[32m✅ Database connected successfully\u001b[39m","timestamp":"2025-09-25 09:47:23:4723"}
+{"level":"\u001b[32minfo\u001b[39m","message":"\u001b[32m✅ Using MongoDB for session management\u001b[39m","timestamp":"2025-09-25 09:47:23:4723"}
+{"level":"\u001b[32minfo\u001b[39m","message":"\u001b[32m🚀 MediConnect AI server running on port 5000\u001b[39m","timestamp":"2025-09-25 09:47:23:4723"}
+{"level":"\u001b[32minfo\u001b[39m","message":"\u001b[32m🌍 Environment: development\u001b[39m","timestamp":"2025-09-25 09:47:23:4723"}
+{"level":"\u001b[32minfo\u001b[39m","message":"\u001b[32m📊 Health check: http://localhost:5000/health\u001b[39m","timestamp":"2025-09-25 09:47:23:4723"}

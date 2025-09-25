@@ -15,7 +15,6 @@ const healthRecordRoutes = require('./routes/healthRecords');
 const notificationRoutes = require('./routes/notifications');
 
 const { connectDatabase } = require('./config/database');
-const { connectRedis } = require('./config/redis');
 const logger = require('./utils/logger');
 const { errorHandler, notFound } = require('./middleware/errorHandler');
 
@@ -34,7 +33,7 @@ app.use(helmet({
   },
   crossOriginEmbedderPolicy: false,
 }));
-console.log(require('crypto').randomBytes(32).toString('hex'));
+
 
 
 
@@ -128,13 +127,8 @@ async function startServer() {
     await connectDatabase();
     logger.info('✅ Database connected successfully');
 
-    // Try to connect to Redis (optional)
-    try {
-      await connectRedis();
-      logger.info('✅ Redis connected successfully');
-    } catch (redisError) {
-      logger.warn('⚠️ Redis not available - continuing without caching');
-    }
+    // Redis not needed for MongoDB setup
+    logger.info('✅ Using MongoDB for session management');
 
     // Start HTTP server
     const server = app.listen(PORT, () => {

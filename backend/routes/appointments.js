@@ -1,6 +1,9 @@
 const express = require('express');
 const { body, validationResult } = require('express-validator');
-const { query } = require('../config/database');
+const Appointment = require('../models/Appointment');
+const HealthcareProvider = require('../models/HealthcareProvider');
+const Patient = require('../models/Patient');
+const User = require('../models/User');
 const { asyncHandler, formatValidationErrors } = require('../middleware/errorHandler');
 const { authenticateToken, authorizeRoles } = require('../middleware/auth');
 
@@ -34,13 +37,14 @@ router.post('/book',
     const { provider_id, appointment_date, appointment_time, chief_complaint, type = 'consultation' } = req.body;
 
     // Check if slot is available
-    const existingAppointment = await query(`
-      SELECT id FROM appointments 
-      WHERE provider_id = $1 AND appointment_date = $2 AND appointment_time = $3
-      AND status IN ('scheduled', 'confirmed')
-    `, [provider_id, appointment_date, appointment_time]);
+    const existingAppointment = await Appointment.findOne({
+      provider: provider_id,
+      appointmentDate: appointment_date,
+      appointmentTime: appointment_time,
+      status: { $in: ['scheduled', 'confirmed'] }
+    });
 
-    if (existingAppointment.rows.length > 0) {
+    if (existingAppointment) {
       return res.status(409).json({
         success: false,
         error: { message: 'This time slot is already booked' }
@@ -48,31 +52,34 @@ router.post('/book',
     }
 
     // Get provider's consultation fee
-    const provider = await query(`
-      SELECT consultation_fee FROM healthcare_providers WHERE id = $1
-    `, [provider_id]);
+    const provider = await HealthcareProvider.findById(provider_id);
 
-    if (provider.rows.length === 0) {
+    if (!provider) {
       return res.status(404).json({
         success: false,
         error: { message: 'Provider not found' }
       });
     }
 
-    const consultationFee = provider.rows[0].consultation_fee || 0;
+    const consultationFee = provider.consultationFee || 0;
 
-    const result = await query(`
-      INSERT INTO appointments 
-      (patient_id, provider_id, appointment_date, appointment_time, chief_complaint, type, consultation_fee)
-      VALUES ($1, $2, $3, $4, $5, $6, $7)
-      RETURNING *
-    `, [patientId, provider_id, appointment_date, appointment_time, chief_complaint, type, consultationFee]);
+    const appointment = new Appointment({
+      patient: patientId,
+      provider: provider_id,
+      appointmentDate: appointment_date,
+      appointmentTime: appointment_time,
+      chiefComplaint: chief_complaint,
+      type,
+      consultationFee
+    });
+
+    await appointment.save();
 
     res.status(201).json({
       success: true,
       message: 'Appointment booked successfully',
       data: {
-        appointment: result.rows[0]
+        appointment
       }
     });
   })
@@ -88,30 +95,20 @@ router.get('/:id',
     const userId = req.user.id;
     const userRole = req.user.role;
 
-    let whereClause = 'WHERE a.id = $1';
-    const queryParams = [appointmentId];
+    let query = { _id: appointmentId };
 
     // Patients can only see their own appointments
     if (userRole === 'patient') {
-      whereClause += ' AND a.patient_id = $2';
-      queryParams.push(userId);
+      query.patient = userId;
     } else if (userRole === 'provider') {
-      whereClause += ' AND a.provider_id = $2';
-      queryParams.push(userId);
+      query.provider = userId;
     }
 
-    const appointment = await query(`
-      SELECT a.*, 
-             p.first_name as patient_first_name, p.last_name as patient_last_name,
-             hp.first_name as provider_first_name, hp.last_name as provider_last_name,
-             hp.specialization
-      FROM appointments a
-      JOIN patients p ON a.patient_id = p.id
-      JOIN healthcare_providers hp ON a.provider_id = hp.id
-      ${whereClause}
-    `, queryParams);
+    const appointment = await Appointment.findOne(query)
+      .populate('patient', 'firstName lastName')
+      .populate('provider', 'firstName lastName specialization');
 
-    if (appointment.rows.length === 0) {
+    if (!appointment) {
       return res.status(404).json({
         success: false,
         error: { message: 'Appointment not found' }
@@ -121,7 +118,7 @@ router.get('/:id',
     res.json({
       success: true,
       data: {
-        appointment: appointment.rows[0]
+        appointment
       }
     });
   })

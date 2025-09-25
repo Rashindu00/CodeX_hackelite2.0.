@@ -1,5 +1,6 @@
 const express = require('express');
-const { query } = require('../config/database');
+const Consultation = require('../models/Consultation');
+const Appointment = require('../models/Appointment');
 const { asyncHandler } = require('../middleware/errorHandler');
 const { authenticateToken } = require('../middleware/auth');
 
@@ -13,17 +14,12 @@ router.get('/:id',
   asyncHandler(async (req, res) => {
     const consultationId = req.params.id;
     
-    const consultation = await query(`
-      SELECT c.*, 
-             p.first_name as patient_first_name, p.last_name as patient_last_name,
-             hp.first_name as provider_first_name, hp.last_name as provider_last_name
-      FROM consultations c
-      JOIN patients p ON c.patient_id = p.id
-      JOIN healthcare_providers hp ON c.provider_id = hp.id
-      WHERE c.id = $1
-    `, [consultationId]);
+    const consultation = await Consultation.findById(consultationId)
+      .populate('patient', 'firstName lastName')
+      .populate('provider', 'firstName lastName')
+      .populate('appointment');
 
-    if (consultation.rows.length === 0) {
+    if (!consultation) {
       return res.status(404).json({
         success: false,
         error: { message: 'Consultation not found' }
@@ -33,7 +29,7 @@ router.get('/:id',
     res.json({
       success: true,
       data: {
-        consultation: consultation.rows[0]
+        consultation
       }
     });
   })
@@ -47,18 +43,30 @@ router.post('/start',
   asyncHandler(async (req, res) => {
     const { appointment_id } = req.body;
     
-    const result = await query(`
-      INSERT INTO consultations (appointment_id, patient_id, provider_id, started_at)
-      SELECT a.id, a.patient_id, a.provider_id, CURRENT_TIMESTAMP
-      FROM appointments a
-      WHERE a.id = $1
-      RETURNING *
-    `, [appointment_id]);
+    // Get appointment details
+    const appointment = await Appointment.findById(appointment_id);
+    
+    if (!appointment) {
+      return res.status(404).json({
+        success: false,
+        error: { message: 'Appointment not found' }
+      });
+    }
+
+    // Create consultation
+    const consultation = new Consultation({
+      appointment: appointment._id,
+      patient: appointment.patient,
+      provider: appointment.provider,
+      startedAt: new Date()
+    });
+
+    await consultation.save();
 
     res.status(201).json({
       success: true,
       data: {
-        consultation: result.rows[0]
+        consultation
       }
     });
   })

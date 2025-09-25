@@ -1,5 +1,5 @@
 const express = require('express');
-const { query } = require('../config/database');
+const Notification = require('../models/Notification');
 const { asyncHandler } = require('../middleware/errorHandler');
 const { authenticateToken } = require('../middleware/auth');
 
@@ -14,25 +14,21 @@ router.get('/:userId',
     const userId = req.params.userId;
     const { read, limit = 20, offset = 0 } = req.query;
 
-    let whereClause = 'WHERE user_id = $1';
-    let queryParams = [userId];
+    let query = { user: userId };
 
     if (read !== undefined) {
-      whereClause += ' AND read = $2';
-      queryParams.push(read === 'true');
+      query.read = read === 'true';
     }
 
-    const notifications = await query(`
-      SELECT * FROM notifications
-      ${whereClause}
-      ORDER BY created_at DESC
-      LIMIT $${queryParams.length + 1} OFFSET $${queryParams.length + 2}
-    `, [...queryParams, limit, offset]);
+    const notifications = await Notification.find(query)
+      .sort({ createdAt: -1 })
+      .limit(parseInt(limit))
+      .skip(parseInt(offset));
 
     res.json({
       success: true,
       data: {
-        notifications: notifications.rows,
+        notifications,
         pagination: {
           limit: parseInt(limit),
           offset: parseInt(offset)
@@ -51,14 +47,16 @@ router.put('/:id/read',
     const notificationId = req.params.id;
     const userId = req.user.id;
 
-    const result = await query(`
-      UPDATE notifications 
-      SET read = TRUE, read_at = CURRENT_TIMESTAMP
-      WHERE id = $1 AND user_id = $2
-      RETURNING *
-    `, [notificationId, userId]);
+    const notification = await Notification.findOneAndUpdate(
+      { _id: notificationId, user: userId },
+      { 
+        read: true, 
+        readAt: new Date() 
+      },
+      { new: true }
+    );
 
-    if (result.rows.length === 0) {
+    if (!notification) {
       return res.status(404).json({
         success: false,
         error: { message: 'Notification not found' }
@@ -68,7 +66,7 @@ router.put('/:id/read',
     res.json({
       success: true,
       data: {
-        notification: result.rows[0]
+        notification
       }
     });
   })
