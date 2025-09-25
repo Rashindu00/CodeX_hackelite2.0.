@@ -25,8 +25,8 @@ const registerValidation = [
     .matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]/)
     .withMessage('Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character'),
   body('role')
-    .isIn(['patient', 'provider'])
-    .withMessage('Role must be either patient or provider'),
+    .isIn(['patient', 'provider', 'admin'])
+    .withMessage('Role must be either patient, provider, or admin'),
   body('firstName')
     .trim()
     .isLength({ min: 2, max: 50 })
@@ -702,6 +702,112 @@ router.put('/change-password', [
     success: true,
     message: 'Password changed successfully'
   });
+}));
+
+// Admin creation route (for setup purposes only)
+router.post('/create-admin', [
+  body('email')
+    .isEmail()
+    .withMessage('Please provide a valid email')
+    .normalizeEmail(),
+  body('password')
+    .isLength({ min: 8 })
+    .withMessage('Password must be at least 8 characters long')
+    .matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]/)
+    .withMessage('Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character'),
+  body('firstName')
+    .trim()
+    .isLength({ min: 2, max: 50 })
+    .withMessage('First name must be between 2 and 50 characters'),
+  body('lastName')
+    .trim()
+    .isLength({ min: 2, max: 50 })
+    .withMessage('Last name must be between 2 and 50 characters'),
+  body('adminSecret')
+    .equals(process.env.ADMIN_CREATION_SECRET || 'MediConnect@Admin2024')
+    .withMessage('Invalid admin creation secret')
+], asyncHandler(async (req, res) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(400).json({
+      success: false,
+      errors: formatValidationErrors(errors.array())
+    });
+  }
+
+  const { email, password, firstName, lastName } = req.body;
+
+  try {
+    // Check if admin already exists
+    const existingAdmin = await User.findOne({ role: 'admin' });
+    if (existingAdmin) {
+      return res.status(400).json({
+        success: false,
+        error: { message: 'Admin user already exists' }
+      });
+    }
+
+    // Check if email is already in use
+    const existingUser = await User.findOne({ email });
+    if (existingUser) {
+      return res.status(400).json({
+        success: false,
+        error: { message: 'Email is already in use' }
+      });
+    }
+
+    // Hash password
+    const saltRounds = 12;
+    const hashedPassword = await bcrypt.hash(password, saltRounds);
+
+    // Create admin user
+    const adminUser = new User({
+      firstName,
+      lastName,
+      email,
+      password: hashedPassword,
+      role: 'admin',
+      isVerified: true,
+      isActive: true,
+      preferences: {
+        notifications: {
+          email: true,
+          sms: true,
+          push: true
+        },
+        language: 'en',
+        timezone: 'Asia/Colombo'
+      }
+    });
+
+    await adminUser.save();
+
+    logger.info('Admin user created successfully', { 
+      adminId: adminUser._id,
+      email: adminUser.email 
+    });
+
+    res.status(201).json({
+      success: true,
+      message: 'Admin user created successfully',
+      data: {
+        user: {
+          id: adminUser._id,
+          firstName: adminUser.firstName,
+          lastName: adminUser.lastName,
+          email: adminUser.email,
+          role: adminUser.role
+        }
+      }
+    });
+
+  } catch (error) {
+    logger.error('Admin creation error:', error);
+    res.status(500).json({
+      success: false,
+      error: { message: 'Failed to create admin user' }
+    });
+  }
 }));
 
 module.exports = router;

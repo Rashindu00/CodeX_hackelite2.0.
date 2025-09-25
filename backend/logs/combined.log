@@ -1519,3 +1519,173 @@
 {"level":"\u001b[32minfo\u001b[39m","message":"\u001b[32m🚀 MediConnect AI server running on port 5000\u001b[39m","timestamp":"2025-09-25 15:07:36:736"}
 {"level":"\u001b[32minfo\u001b[39m","message":"\u001b[32m🌍 Environment: development\u001b[39m","timestamp":"2025-09-25 15:07:36:736"}
 {"level":"\u001b[32minfo\u001b[39m","message":"\u001b[32m📊 Health check: http://localhost:5000/health\u001b[39m","timestamp":"2025-09-25 15:07:36:736"}
+{"ip":"::1","level":"\u001b[32minfo\u001b[39m","message":"\u001b[32mToken verified\u001b[39m","timestamp":"2025-09-25 15:10:22:1022","userId":"68d4d217972a6dec5c3248cb"}
+{"ip":"::1","level":"\u001b[32minfo\u001b[39m","message":"\u001b[32mToken verified\u001b[39m","timestamp":"2025-09-25 15:10:23:1023","userId":"68d4d217972a6dec5c3248cb"}
+{"ip":"::1","level":"\u001b[32minfo\u001b[39m","message":"\u001b[32mToken verified\u001b[39m","timestamp":"2025-09-25 15:10:47:1047","userId":"68d4d217972a6dec5c3248cb"}
+{"ip":"::1","level":"\u001b[32minfo\u001b[39m","message":"\u001b[32mToken verified\u001b[39m","timestamp":"2025-09-25 15:10:47:1047","userId":"68d4d217972a6dec5c3248cb"}
+{"ip":"::1","level":"\u001b[32minfo\u001b[39m","message":"\u001b[32mToken verified\u001b[39m","timestamp":"2025-09-25 15:11:18:1118","userId":"68d4d217972a6dec5c3248cb"}
+{"ip":"::1","level":"\u001b[32minfo\u001b[39m","message":"\u001b[32mToken verified\u001b[39m","timestamp":"2025-09-25 15:11:18:1118","userId":"68d4d217972a6dec5c3248cb"}
+{"ip":"::1","level":"\u001b[32minfo\u001b[39m","message":"\u001b[32mToken verified\u001b[39m","timestamp":"2025-09-25 15:11:22:1122","userId":"68d4d217972a6dec5c3248cb"}
+{"ip":"::1","level":"\u001b[32minfo\u001b[39m","message":"\u001b[32mToken verified\u001b[39m","timestamp":"2025-09-25 15:11:22:1122","userId":"68d4d217972a6dec5c3248cb"}
+{"ip":"::1","level":"\u001b[32minfo\u001b[39m","message":"\u001b[32mToken verified\u001b[39m","timestamp":"2025-09-25 15:16:05:165","userId":"68d4d217972a6dec5c3248cb"}
+{"ip":"::1","level":"\u001b[32minfo\u001b[39m","message":"\u001b[32mToken verified\u001b[39m","timestamp":"2025-09-25 15:16:06:166","userId":"68d4d217972a6dec5c3248cb"}
+{"ip":"::1","level":"\u001b[32minfo\u001b[39m","message":"\u001b[32mToken verified\u001b[39m","timestamp":"2025-09-25 15:16:06:166","userId":"68d4d217972a6dec5c3248cb"}
+{"ip":"::1","level":"\u001b[32minfo\u001b[39m","message":"\u001b[32mToken verified\u001b[39m","timestamp":"2025-09-25 15:16:15:1615","userId":"68d4d217972a6dec5c3248cb"}
+{"ip":"::1","level":"\u001b[32minfo\u001b[39m","message":"\u001b[32mToken verified\u001b[39m","timestamp":"2025-09-25 15:16:15:1615","userId":"68d4d217972a6dec5c3248cb"}
+{"ip":"::1","level":"\u001b[32minfo\u001b[39m","message":"\u001b[32mToken verified\u001b[39m","timestamp":"2025-09-25 15:16:15:1615","userId":"68d4d217972a6dec5c3248cb"}
+{"ip":"::1","level":"\u001b[32minfo\u001b[39m","message":"\u001b[32mToken verified\u001b[39m","timestamp":"2025-09-25 15:16:16:1616","userId":"68d4d217972a6dec5c3248cb"}
+{"ip":"::1","level":"\u001b[32minfo\u001b[39m","message":"\u001b[32mToken verified\u001b[39m","timestamp":"2025-09-25 15:16:16:1616","userId":"68d4d217972a6dec5c3248cb"}
+{"level":"\u001b[32minfo\u001b[39m","message":"\u001b[32mGemini AI initialized successfully\u001b[39m","timestamp":"2025-09-25 15:17:16:1716"}
+{"level":"\u001b[32minfo\u001b[39m","message":"\u001b[32mMongoDB connection established successfully\u001b[39m","timestamp":"2025-09-25 15:17:18:1718"}
+{"level":"\u001b[32minfo\u001b[39m","message":"\u001b[32mConnected to database: mediconnect_ai\u001b[39m","timestamp":"2025-09-25 15:17:18:1718"}
+{"level":"\u001b[32minfo\u001b[39m","message":"\u001b[32m✅ Database connected successfully\u001b[39m","timestamp":"2025-09-25 15:17:18:1718"}
+{"level":"\u001b[32minfo\u001b[39m","message":"\u001b[32m✅ Using MongoDB for session management\u001b[39m","timestamp":"2025-09-25 15:17:18:1718"}
+{"level":"\u001b[32minfo\u001b[39m","message":"\u001b[32m🚀 MediConnect AI server running on port 5000\u001b[39m","timestamp":"2025-09-25 15:17:19:1719"}
+{"level":"\u001b[32minfo\u001b[39m","message":"\u001b[32m🌍 Environment: development\u001b[39m","timestamp":"2025-09-25 15:17:19:1719"}
+{"level":"\u001b[32minfo\u001b[39m","message":"\u001b[32m📊 Health check: http://localhost:5000/health\u001b[39m","timestamp":"2025-09-25 15:17:19:1719"}
+{"level":"\u001b[32minfo\u001b[39m","message":"\u001b[32mGemini AI initialized successfully\u001b[39m","timestamp":"2025-09-25 15:17:41:1741"}
+{"level":"\u001b[32minfo\u001b[39m","message":"\u001b[32mMongoDB connection established successfully\u001b[39m","timestamp":"2025-09-25 15:17:42:1742"}
+{"level":"\u001b[32minfo\u001b[39m","message":"\u001b[32mConnected to database: mediconnect_ai\u001b[39m","timestamp":"2025-09-25 15:17:42:1742"}
+{"level":"\u001b[32minfo\u001b[39m","message":"\u001b[32m✅ Database connected successfully\u001b[39m","timestamp":"2025-09-25 15:17:42:1742"}
+{"level":"\u001b[32minfo\u001b[39m","message":"\u001b[32m✅ Using MongoDB for session management\u001b[39m","timestamp":"2025-09-25 15:17:42:1742"}
+{"level":"\u001b[32minfo\u001b[39m","message":"\u001b[32m🚀 MediConnect AI server running on port 5000\u001b[39m","timestamp":"2025-09-25 15:17:42:1742"}
+{"level":"\u001b[32minfo\u001b[39m","message":"\u001b[32m🌍 Environment: development\u001b[39m","timestamp":"2025-09-25 15:17:42:1742"}
+{"level":"\u001b[32minfo\u001b[39m","message":"\u001b[32m📊 Health check: http://localhost:5000/health\u001b[39m","timestamp":"2025-09-25 15:17:42:1742"}
+{"level":"\u001b[32minfo\u001b[39m","message":"\u001b[32mGemini AI initialized successfully\u001b[39m","timestamp":"2025-09-25 15:17:51:1751"}
+{"level":"\u001b[32minfo\u001b[39m","message":"\u001b[32mMongoDB connection established successfully\u001b[39m","timestamp":"2025-09-25 15:17:52:1752"}
+{"level":"\u001b[32minfo\u001b[39m","message":"\u001b[32mConnected to database: mediconnect_ai\u001b[39m","timestamp":"2025-09-25 15:17:52:1752"}
+{"level":"\u001b[32minfo\u001b[39m","message":"\u001b[32m✅ Database connected successfully\u001b[39m","timestamp":"2025-09-25 15:17:52:1752"}
+{"level":"\u001b[32minfo\u001b[39m","message":"\u001b[32m✅ Using MongoDB for session management\u001b[39m","timestamp":"2025-09-25 15:17:52:1752"}
+{"level":"\u001b[32minfo\u001b[39m","message":"\u001b[32m🚀 MediConnect AI server running on port 5000\u001b[39m","timestamp":"2025-09-25 15:17:52:1752"}
+{"level":"\u001b[32minfo\u001b[39m","message":"\u001b[32m🌍 Environment: development\u001b[39m","timestamp":"2025-09-25 15:17:52:1752"}
+{"level":"\u001b[32minfo\u001b[39m","message":"\u001b[32m📊 Health check: http://localhost:5000/health\u001b[39m","timestamp":"2025-09-25 15:17:52:1752"}
+{"error":"jwt expired","event":"Invalid token attempt","ip":"::1","level":"\u001b[33mwarn\u001b[39m","message":"\u001b[33mSECURITY: Invalid token attempt\u001b[39m","timestamp":"2025-09-25 15:20:54:2054","token":"eyJhbGciOi..."}
+{"error":"jwt expired","event":"Invalid token attempt","ip":"::1","level":"\u001b[33mwarn\u001b[39m","message":"\u001b[33mSECURITY: Invalid token attempt\u001b[39m","timestamp":"2025-09-25 15:20:54:2054","token":"eyJhbGciOi..."}
+{"error":"jwt expired","event":"Invalid token attempt","ip":"::1","level":"\u001b[33mwarn\u001b[39m","message":"\u001b[33mSECURITY: Invalid token attempt\u001b[39m","timestamp":"2025-09-25 15:20:54:2054","token":"eyJhbGciOi..."}
+{"error":"jwt expired","event":"Invalid token attempt","ip":"::1","level":"\u001b[33mwarn\u001b[39m","message":"\u001b[33mSECURITY: Invalid token attempt\u001b[39m","timestamp":"2025-09-25 15:20:54:2054","token":"eyJhbGciOi..."}
+{"email":"rashindusitharasrs@gmail.com","ip":"::1","level":"\u001b[32minfo\u001b[39m","message":"\u001b[32mSuccessful login\u001b[39m","timestamp":"2025-09-25 15:21:06:216","userId":"68d4466776e9a1b08a682aca","userType":"patient"}
+{"ip":"::1","level":"\u001b[32minfo\u001b[39m","message":"\u001b[32mToken verified\u001b[39m","timestamp":"2025-09-25 15:21:09:219","userId":"68d4466776e9a1b08a682aca"}
+{"level":"\u001b[32minfo\u001b[39m","message":"\u001b[32mUser logged out\u001b[39m","timestamp":"2025-09-25 15:21:10:2110","userId":"68d4466776e9a1b08a682aca"}
+{"email":"rashindusitharasrs@gmail.com","ip":"::1","level":"\u001b[32minfo\u001b[39m","message":"\u001b[32mSuccessful login\u001b[39m","timestamp":"2025-09-25 15:21:15:2115","userId":"68d4466776e9a1b08a682aca","userType":"patient"}
+{"ip":"::1","level":"\u001b[32minfo\u001b[39m","message":"\u001b[32mToken verified\u001b[39m","timestamp":"2025-09-25 15:21:18:2118","userId":"68d4466776e9a1b08a682aca"}
+{"level":"\u001b[32minfo\u001b[39m","message":"\u001b[32mUser logged out\u001b[39m","timestamp":"2025-09-25 15:21:18:2118","userId":"68d4466776e9a1b08a682aca"}
+{"email":"rashindusitharas@gmail.com","ip":"::1","level":"\u001b[32minfo\u001b[39m","message":"\u001b[32mSuccessful login\u001b[39m","timestamp":"2025-09-25 15:21:26:2126","userId":"68d4d217972a6dec5c3248cb","userType":"provider"}
+{"ip":"::1","level":"\u001b[32minfo\u001b[39m","message":"\u001b[32mToken verified\u001b[39m","timestamp":"2025-09-25 15:21:30:2130","userId":"68d4d217972a6dec5c3248cb"}
+{"ip":"::1","level":"\u001b[32minfo\u001b[39m","message":"\u001b[32mToken verified\u001b[39m","timestamp":"2025-09-25 15:21:30:2130","userId":"68d4d217972a6dec5c3248cb"}
+{"ip":"::1","level":"\u001b[32minfo\u001b[39m","message":"\u001b[32mToken verified\u001b[39m","timestamp":"2025-09-25 15:21:30:2130","userId":"68d4d217972a6dec5c3248cb"}
+{"ip":"::1","level":"\u001b[32minfo\u001b[39m","message":"\u001b[32mToken verified\u001b[39m","timestamp":"2025-09-25 15:21:30:2130","userId":"68d4d217972a6dec5c3248cb"}
+{"ip":"::1","level":"\u001b[32minfo\u001b[39m","message":"\u001b[32mToken verified\u001b[39m","timestamp":"2025-09-25 15:21:50:2150","userId":"68d4d217972a6dec5c3248cb"}
+{"ip":"::1","level":"\u001b[32minfo\u001b[39m","message":"\u001b[32mToken verified\u001b[39m","timestamp":"2025-09-25 15:21:51:2151","userId":"68d4d217972a6dec5c3248cb"}
+{"level":"\u001b[33mwarn\u001b[39m","message":"\u001b[33mMongoDB disconnected\u001b[39m","timestamp":"2025-09-25 15:24:16:2416"}
+{"level":"\u001b[32minfo\u001b[39m","message":"\u001b[32mMongoDB reconnected\u001b[39m","timestamp":"2025-09-25 15:34:38:3438"}
+{"ip":"::1","level":"\u001b[32minfo\u001b[39m","message":"\u001b[32mToken verified\u001b[39m","timestamp":"2025-09-25 15:35:43:3543","userId":"68d4d217972a6dec5c3248cb"}
+{"ip":"::1","level":"\u001b[32minfo\u001b[39m","message":"\u001b[32mToken verified\u001b[39m","timestamp":"2025-09-25 15:35:43:3543","userId":"68d4d217972a6dec5c3248cb"}
+{"ip":"::1","level":"\u001b[32minfo\u001b[39m","message":"\u001b[32mToken verified\u001b[39m","timestamp":"2025-09-25 15:35:43:3543","userId":"68d4d217972a6dec5c3248cb"}
+{"ip":"::1","level":"\u001b[32minfo\u001b[39m","message":"\u001b[32mToken verified\u001b[39m","timestamp":"2025-09-25 15:35:43:3543","userId":"68d4d217972a6dec5c3248cb"}
+{"ip":"::1","level":"\u001b[32minfo\u001b[39m","message":"\u001b[32mToken verified\u001b[39m","timestamp":"2025-09-25 15:35:45:3545","userId":"68d4d217972a6dec5c3248cb"}
+{"ip":"::1","level":"\u001b[32minfo\u001b[39m","message":"\u001b[32mToken verified\u001b[39m","timestamp":"2025-09-25 15:35:45:3545","userId":"68d4d217972a6dec5c3248cb"}
+{"ip":"::1","level":"\u001b[32minfo\u001b[39m","message":"\u001b[32mToken verified\u001b[39m","timestamp":"2025-09-25 15:35:45:3545","userId":"68d4d217972a6dec5c3248cb"}
+{"ip":"::1","level":"\u001b[32minfo\u001b[39m","message":"\u001b[32mToken verified\u001b[39m","timestamp":"2025-09-25 15:35:45:3545","userId":"68d4d217972a6dec5c3248cb"}
+{"level":"\u001b[32minfo\u001b[39m","message":"\u001b[32mGemini AI initialized successfully\u001b[39m","timestamp":"2025-09-25 15:36:04:364"}
+{"level":"\u001b[32minfo\u001b[39m","message":"\u001b[32mMongoDB connection established successfully\u001b[39m","timestamp":"2025-09-25 15:36:06:366"}
+{"level":"\u001b[32minfo\u001b[39m","message":"\u001b[32mConnected to database: mediconnect_ai\u001b[39m","timestamp":"2025-09-25 15:36:06:366"}
+{"level":"\u001b[32minfo\u001b[39m","message":"\u001b[32m✅ Database connected successfully\u001b[39m","timestamp":"2025-09-25 15:36:06:366"}
+{"level":"\u001b[32minfo\u001b[39m","message":"\u001b[32m✅ Using MongoDB for session management\u001b[39m","timestamp":"2025-09-25 15:36:06:366"}
+{"level":"\u001b[32minfo\u001b[39m","message":"\u001b[32m🚀 MediConnect AI server running on port 5000\u001b[39m","timestamp":"2025-09-25 15:36:06:366"}
+{"level":"\u001b[32minfo\u001b[39m","message":"\u001b[32m🌍 Environment: development\u001b[39m","timestamp":"2025-09-25 15:36:06:366"}
+{"level":"\u001b[32minfo\u001b[39m","message":"\u001b[32m📊 Health check: http://localhost:5000/health\u001b[39m","timestamp":"2025-09-25 15:36:06:366"}
+{"level":"\u001b[32minfo\u001b[39m","message":"\u001b[32mGemini AI initialized successfully\u001b[39m","timestamp":"2025-09-25 15:42:40:4240"}
+{"level":"\u001b[32minfo\u001b[39m","message":"\u001b[32mMongoDB connection established successfully\u001b[39m","timestamp":"2025-09-25 15:42:42:4242"}
+{"level":"\u001b[32minfo\u001b[39m","message":"\u001b[32mConnected to database: mediconnect_ai\u001b[39m","timestamp":"2025-09-25 15:42:42:4242"}
+{"level":"\u001b[32minfo\u001b[39m","message":"\u001b[32m✅ Database connected successfully\u001b[39m","timestamp":"2025-09-25 15:42:42:4242"}
+{"level":"\u001b[32minfo\u001b[39m","message":"\u001b[32m✅ Using MongoDB for session management\u001b[39m","timestamp":"2025-09-25 15:42:42:4242"}
+{"level":"\u001b[32minfo\u001b[39m","message":"\u001b[32m🚀 MediConnect AI server running on port 5000\u001b[39m","timestamp":"2025-09-25 15:42:42:4242"}
+{"level":"\u001b[32minfo\u001b[39m","message":"\u001b[32m🌍 Environment: development\u001b[39m","timestamp":"2025-09-25 15:42:42:4242"}
+{"level":"\u001b[32minfo\u001b[39m","message":"\u001b[32m📊 Health check: http://localhost:5000/health\u001b[39m","timestamp":"2025-09-25 15:42:42:4242"}
+{"email":"rashindusitharas@gmail.com","ip":"::1","level":"\u001b[32minfo\u001b[39m","message":"\u001b[32mSuccessful login\u001b[39m","timestamp":"2025-09-25 15:43:23:4323","userId":"68d4d217972a6dec5c3248cb","userType":"provider"}
+{"ip":"::1","level":"\u001b[32minfo\u001b[39m","message":"\u001b[32mToken verified\u001b[39m","timestamp":"2025-09-25 15:43:47:4347","userId":"68d4d217972a6dec5c3248cb"}
+{"ip":"::1","level":"\u001b[32minfo\u001b[39m","message":"\u001b[32mToken verified\u001b[39m","timestamp":"2025-09-25 15:43:47:4347","userId":"68d4d217972a6dec5c3248cb"}
+{"ip":"::1","level":"\u001b[32minfo\u001b[39m","message":"\u001b[32mToken verified\u001b[39m","timestamp":"2025-09-25 15:44:43:4443","userId":"68d4d217972a6dec5c3248cb"}
+{"ip":"::1","level":"\u001b[32minfo\u001b[39m","message":"\u001b[32mToken verified\u001b[39m","timestamp":"2025-09-25 15:44:44:4444","userId":"68d4d217972a6dec5c3248cb"}
+{"ip":"::1","level":"\u001b[32minfo\u001b[39m","message":"\u001b[32mToken verified\u001b[39m","timestamp":"2025-09-25 15:45:10:4510","userId":"68d4d217972a6dec5c3248cb"}
+{"ip":"::1","level":"\u001b[32minfo\u001b[39m","message":"\u001b[32mToken verified\u001b[39m","timestamp":"2025-09-25 15:45:10:4510","userId":"68d4d217972a6dec5c3248cb"}
+{"ip":"::1","level":"\u001b[32minfo\u001b[39m","message":"\u001b[32mToken verified\u001b[39m","timestamp":"2025-09-25 15:47:22:4722","userId":"68d4d217972a6dec5c3248cb"}
+{"ip":"::1","level":"\u001b[32minfo\u001b[39m","message":"\u001b[32mToken verified\u001b[39m","timestamp":"2025-09-25 15:47:22:4722","userId":"68d4d217972a6dec5c3248cb"}
+{"ip":"::1","level":"\u001b[32minfo\u001b[39m","message":"\u001b[32mToken verified\u001b[39m","timestamp":"2025-09-25 15:55:52:5552","userId":"68d4d217972a6dec5c3248cb"}
+{"ip":"::1","level":"\u001b[32minfo\u001b[39m","message":"\u001b[32mToken verified\u001b[39m","timestamp":"2025-09-25 15:55:53:5553","userId":"68d4d217972a6dec5c3248cb"}
+{"ip":"::1","level":"\u001b[32minfo\u001b[39m","message":"\u001b[32mToken verified\u001b[39m","timestamp":"2025-09-25 15:55:53:5553","userId":"68d4d217972a6dec5c3248cb"}
+{"ip":"::1","level":"\u001b[32minfo\u001b[39m","message":"\u001b[32mToken verified\u001b[39m","timestamp":"2025-09-25 15:56:08:568","userId":"68d4d217972a6dec5c3248cb"}
+{"ip":"::1","level":"\u001b[32minfo\u001b[39m","message":"\u001b[32mToken verified\u001b[39m","timestamp":"2025-09-25 15:56:08:568","userId":"68d4d217972a6dec5c3248cb"}
+{"ip":"::1","level":"\u001b[32minfo\u001b[39m","message":"\u001b[32mToken verified\u001b[39m","timestamp":"2025-09-25 15:56:09:569","userId":"68d4d217972a6dec5c3248cb"}
+{"error":"jwt expired","event":"Invalid token attempt","ip":"::1","level":"\u001b[33mwarn\u001b[39m","message":"\u001b[33mSECURITY: Invalid token attempt\u001b[39m","timestamp":"2025-09-25 16:06:36:636","token":"eyJhbGciOi..."}
+{"error":"jwt expired","event":"Invalid token attempt","ip":"::1","level":"\u001b[33mwarn\u001b[39m","message":"\u001b[33mSECURITY: Invalid token attempt\u001b[39m","timestamp":"2025-09-25 16:06:36:636","token":"eyJhbGciOi..."}
+{"level":"\u001b[32minfo\u001b[39m","message":"\u001b[32mGemini AI initialized successfully\u001b[39m","timestamp":"2025-09-25 16:08:18:818"}
+{"level":"\u001b[32minfo\u001b[39m","message":"\u001b[32mMongoDB connection established successfully\u001b[39m","timestamp":"2025-09-25 16:08:19:819"}
+{"level":"\u001b[32minfo\u001b[39m","message":"\u001b[32mConnected to database: mediconnect_ai\u001b[39m","timestamp":"2025-09-25 16:08:19:819"}
+{"level":"\u001b[32minfo\u001b[39m","message":"\u001b[32m✅ Database connected successfully\u001b[39m","timestamp":"2025-09-25 16:08:19:819"}
+{"level":"\u001b[32minfo\u001b[39m","message":"\u001b[32m✅ Using MongoDB for session management\u001b[39m","timestamp":"2025-09-25 16:08:19:819"}
+{"level":"\u001b[32minfo\u001b[39m","message":"\u001b[32m🚀 MediConnect AI server running on port 5000\u001b[39m","timestamp":"2025-09-25 16:08:20:820"}
+{"level":"\u001b[32minfo\u001b[39m","message":"\u001b[32m🌍 Environment: development\u001b[39m","timestamp":"2025-09-25 16:08:20:820"}
+{"level":"\u001b[32minfo\u001b[39m","message":"\u001b[32m📊 Health check: http://localhost:5000/health\u001b[39m","timestamp":"2025-09-25 16:08:20:820"}
+{"level":"\u001b[32minfo\u001b[39m","message":"\u001b[32mGemini AI initialized successfully\u001b[39m","timestamp":"2025-09-25 16:08:28:828"}
+{"level":"\u001b[32minfo\u001b[39m","message":"\u001b[32mMongoDB connection established successfully\u001b[39m","timestamp":"2025-09-25 16:08:29:829"}
+{"level":"\u001b[32minfo\u001b[39m","message":"\u001b[32mConnected to database: mediconnect_ai\u001b[39m","timestamp":"2025-09-25 16:08:29:829"}
+{"level":"\u001b[32minfo\u001b[39m","message":"\u001b[32m✅ Database connected successfully\u001b[39m","timestamp":"2025-09-25 16:08:29:829"}
+{"level":"\u001b[32minfo\u001b[39m","message":"\u001b[32m✅ Using MongoDB for session management\u001b[39m","timestamp":"2025-09-25 16:08:29:829"}
+{"level":"\u001b[32minfo\u001b[39m","message":"\u001b[32m🚀 MediConnect AI server running on port 5000\u001b[39m","timestamp":"2025-09-25 16:08:29:829"}
+{"level":"\u001b[32minfo\u001b[39m","message":"\u001b[32m🌍 Environment: development\u001b[39m","timestamp":"2025-09-25 16:08:29:829"}
+{"level":"\u001b[32minfo\u001b[39m","message":"\u001b[32m📊 Health check: http://localhost:5000/health\u001b[39m","timestamp":"2025-09-25 16:08:29:829"}
+{"level":"\u001b[32minfo\u001b[39m","message":"\u001b[32mGemini AI initialized successfully\u001b[39m","timestamp":"2025-09-25 16:08:52:852"}
+{"level":"\u001b[32minfo\u001b[39m","message":"\u001b[32mMongoDB connection established successfully\u001b[39m","timestamp":"2025-09-25 16:08:53:853"}
+{"level":"\u001b[32minfo\u001b[39m","message":"\u001b[32mConnected to database: mediconnect_ai\u001b[39m","timestamp":"2025-09-25 16:08:53:853"}
+{"level":"\u001b[32minfo\u001b[39m","message":"\u001b[32m✅ Database connected successfully\u001b[39m","timestamp":"2025-09-25 16:08:53:853"}
+{"level":"\u001b[32minfo\u001b[39m","message":"\u001b[32m✅ Using MongoDB for session management\u001b[39m","timestamp":"2025-09-25 16:08:53:853"}
+{"level":"\u001b[32minfo\u001b[39m","message":"\u001b[32m🚀 MediConnect AI server running on port 5000\u001b[39m","timestamp":"2025-09-25 16:08:53:853"}
+{"level":"\u001b[32minfo\u001b[39m","message":"\u001b[32m🌍 Environment: development\u001b[39m","timestamp":"2025-09-25 16:08:53:853"}
+{"level":"\u001b[32minfo\u001b[39m","message":"\u001b[32m📊 Health check: http://localhost:5000/health\u001b[39m","timestamp":"2025-09-25 16:08:53:853"}
+{"level":"\u001b[32minfo\u001b[39m","message":"\u001b[32mSIGINT received. Shutting down gracefully...\u001b[39m","timestamp":"2025-09-25 16:09:18:918"}
+{"level":"\u001b[32minfo\u001b[39m","message":"\u001b[32mGemini AI initialized successfully\u001b[39m","timestamp":"2025-09-25 16:10:18:1018"}
+{"level":"\u001b[32minfo\u001b[39m","message":"\u001b[32mMongoDB connection established successfully\u001b[39m","timestamp":"2025-09-25 16:10:20:1020"}
+{"level":"\u001b[32minfo\u001b[39m","message":"\u001b[32mConnected to database: mediconnect_ai\u001b[39m","timestamp":"2025-09-25 16:10:20:1020"}
+{"level":"\u001b[32minfo\u001b[39m","message":"\u001b[32m✅ Database connected successfully\u001b[39m","timestamp":"2025-09-25 16:10:20:1020"}
+{"level":"\u001b[32minfo\u001b[39m","message":"\u001b[32m✅ Using MongoDB for session management\u001b[39m","timestamp":"2025-09-25 16:10:20:1020"}
+{"level":"\u001b[32minfo\u001b[39m","message":"\u001b[32m🚀 MediConnect AI server running on port 5000\u001b[39m","timestamp":"2025-09-25 16:10:20:1020"}
+{"level":"\u001b[32minfo\u001b[39m","message":"\u001b[32m🌍 Environment: development\u001b[39m","timestamp":"2025-09-25 16:10:20:1020"}
+{"level":"\u001b[32minfo\u001b[39m","message":"\u001b[32m📊 Health check: http://localhost:5000/health\u001b[39m","timestamp":"2025-09-25 16:10:20:1020"}
+{"attempts":1,"email":"admin@mediconnect.lk","ip":"::1","level":"\u001b[32minfo\u001b[39m","message":"\u001b[32mFailed login attempt\u001b[39m","timestamp":"2025-09-25 16:10:41:1041","userId":"68d51bde56240f00a51696ab"}
+{"attempts":1,"email":"admin@mediconnect.lk","ip":"::1","level":"\u001b[32minfo\u001b[39m","message":"\u001b[32mFailed login attempt\u001b[39m","timestamp":"2025-09-25 16:16:07:167","userId":"68d51bde56240f00a51696ab"}
+{"level":"\u001b[32minfo\u001b[39m","message":"\u001b[32mGemini AI initialized successfully\u001b[39m","timestamp":"2025-09-25 16:43:17:4317"}
+{"level":"\u001b[32minfo\u001b[39m","message":"\u001b[32mMongoDB connection established successfully\u001b[39m","timestamp":"2025-09-25 16:43:19:4319"}
+{"level":"\u001b[32minfo\u001b[39m","message":"\u001b[32mConnected to database: mediconnect_ai\u001b[39m","timestamp":"2025-09-25 16:43:19:4319"}
+{"level":"\u001b[32minfo\u001b[39m","message":"\u001b[32m✅ Database connected successfully\u001b[39m","timestamp":"2025-09-25 16:43:19:4319"}
+{"level":"\u001b[32minfo\u001b[39m","message":"\u001b[32m✅ Using MongoDB for session management\u001b[39m","timestamp":"2025-09-25 16:43:19:4319"}
+{"level":"\u001b[32minfo\u001b[39m","message":"\u001b[32m🚀 MediConnect AI server running on port 5000\u001b[39m","timestamp":"2025-09-25 16:43:19:4319"}
+{"level":"\u001b[32minfo\u001b[39m","message":"\u001b[32m🌍 Environment: development\u001b[39m","timestamp":"2025-09-25 16:43:19:4319"}
+{"level":"\u001b[32minfo\u001b[39m","message":"\u001b[32m📊 Health check: http://localhost:5000/health\u001b[39m","timestamp":"2025-09-25 16:43:19:4319"}
+{"attempts":1,"email":"admin@mediconnect.lk","ip":"::1","level":"\u001b[32minfo\u001b[39m","message":"\u001b[32mFailed login attempt\u001b[39m","timestamp":"2025-09-25 16:43:28:4328","userId":"68d51bde56240f00a51696ab"}
+{"level":"\u001b[32minfo\u001b[39m","message":"\u001b[32mGemini AI initialized successfully\u001b[39m","timestamp":"2025-09-25 16:44:02:442"}
+{"level":"\u001b[32minfo\u001b[39m","message":"\u001b[32mMongoDB connection established successfully\u001b[39m","timestamp":"2025-09-25 16:44:04:444"}
+{"level":"\u001b[32minfo\u001b[39m","message":"\u001b[32mConnected to database: mediconnect_ai\u001b[39m","timestamp":"2025-09-25 16:44:04:444"}
+{"level":"\u001b[32minfo\u001b[39m","message":"\u001b[32m✅ Database connected successfully\u001b[39m","timestamp":"2025-09-25 16:44:04:444"}
+{"level":"\u001b[32minfo\u001b[39m","message":"\u001b[32m✅ Using MongoDB for session management\u001b[39m","timestamp":"2025-09-25 16:44:04:444"}
+{"level":"\u001b[32minfo\u001b[39m","message":"\u001b[32m🚀 MediConnect AI server running on port 5000\u001b[39m","timestamp":"2025-09-25 16:44:05:445"}
+{"level":"\u001b[32minfo\u001b[39m","message":"\u001b[32m🌍 Environment: development\u001b[39m","timestamp":"2025-09-25 16:44:05:445"}
+{"level":"\u001b[32minfo\u001b[39m","message":"\u001b[32m📊 Health check: http://localhost:5000/health\u001b[39m","timestamp":"2025-09-25 16:44:05:445"}
+{"level":"\u001b[32minfo\u001b[39m","message":"\u001b[32mSIGINT received. Shutting down gracefully...\u001b[39m","timestamp":"2025-09-25 16:44:17:4417"}
+{"level":"\u001b[32minfo\u001b[39m","message":"\u001b[32mGemini AI initialized successfully\u001b[39m","timestamp":"2025-09-25 16:54:03:543"}
+{"level":"\u001b[32minfo\u001b[39m","message":"\u001b[32mMongoDB connection established successfully\u001b[39m","timestamp":"2025-09-25 16:54:05:545"}
+{"level":"\u001b[32minfo\u001b[39m","message":"\u001b[32mConnected to database: mediconnect_ai\u001b[39m","timestamp":"2025-09-25 16:54:05:545"}
+{"level":"\u001b[32minfo\u001b[39m","message":"\u001b[32m✅ Database connected successfully\u001b[39m","timestamp":"2025-09-25 16:54:05:545"}
+{"level":"\u001b[32minfo\u001b[39m","message":"\u001b[32m✅ Using MongoDB for session management\u001b[39m","timestamp":"2025-09-25 16:54:05:545"}
+{"level":"\u001b[32minfo\u001b[39m","message":"\u001b[32m🚀 MediConnect AI server running on port 5000\u001b[39m","timestamp":"2025-09-25 16:54:05:545"}
+{"level":"\u001b[32minfo\u001b[39m","message":"\u001b[32m🌍 Environment: development\u001b[39m","timestamp":"2025-09-25 16:54:05:545"}
+{"level":"\u001b[32minfo\u001b[39m","message":"\u001b[32m📊 Health check: http://localhost:5000/health\u001b[39m","timestamp":"2025-09-25 16:54:05:545"}
+{"email":"admin@mediconnect.lk","ip":"::1","level":"\u001b[32minfo\u001b[39m","message":"\u001b[32mSuccessful login\u001b[39m","timestamp":"2025-09-25 16:54:34:5434","userId":"68d51bde56240f00a51696ab","userType":"admin"}
+{"level":"\u001b[32minfo\u001b[39m","message":"\u001b[32mGemini AI initialized successfully\u001b[39m","timestamp":"2025-09-25 16:55:41:5541"}
+{"level":"\u001b[32minfo\u001b[39m","message":"\u001b[32mMongoDB connection established successfully\u001b[39m","timestamp":"2025-09-25 16:55:43:5543"}
+{"level":"\u001b[32minfo\u001b[39m","message":"\u001b[32mConnected to database: mediconnect_ai\u001b[39m","timestamp":"2025-09-25 16:55:43:5543"}
+{"level":"\u001b[32minfo\u001b[39m","message":"\u001b[32m✅ Database connected successfully\u001b[39m","timestamp":"2025-09-25 16:55:43:5543"}
+{"level":"\u001b[32minfo\u001b[39m","message":"\u001b[32m✅ Using MongoDB for session management\u001b[39m","timestamp":"2025-09-25 16:55:43:5543"}
+{"level":"\u001b[32minfo\u001b[39m","message":"\u001b[32m🚀 MediConnect AI server running on port 5000\u001b[39m","timestamp":"2025-09-25 16:55:43:5543"}
+{"level":"\u001b[32minfo\u001b[39m","message":"\u001b[32m🌍 Environment: development\u001b[39m","timestamp":"2025-09-25 16:55:43:5543"}
+{"level":"\u001b[32minfo\u001b[39m","message":"\u001b[32m📊 Health check: http://localhost:5000/health\u001b[39m","timestamp":"2025-09-25 16:55:43:5543"}

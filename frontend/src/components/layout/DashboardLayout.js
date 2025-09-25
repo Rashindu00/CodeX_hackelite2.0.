@@ -60,6 +60,7 @@ const DashboardLayout = ({ children }) => {
     } else if (user?.role === 'provider') {
       return [
         { name: 'Dashboard', href: '/provider', icon: HomeIcon },
+        { name: 'AI Medical Assistant', href: '/provider/chatbot', icon: ChatBubbleLeftEllipsisIcon },
         { name: 'Patients', href: '/provider/patients', icon: UserGroupIcon },
         { name: 'Appointments', href: '/provider/appointments', icon: CalendarDaysIcon },
         { name: 'Consultations', href: '/provider/consultations', icon: VideoCameraIcon },
@@ -69,6 +70,9 @@ const DashboardLayout = ({ children }) => {
     } else {
       return [
         { name: 'Dashboard', href: '/admin', icon: HomeIcon },
+        { name: 'Patients', href: '/admin/patients', icon: UserGroupIcon },
+        { name: 'Providers', href: '/admin/providers', icon: UserIcon },
+        { name: 'Reports', href: '/admin/reports', icon: ClipboardDocumentListIcon },
         { name: 'Settings', href: '/admin/settings', icon: Cog6ToothIcon },
       ];
     }

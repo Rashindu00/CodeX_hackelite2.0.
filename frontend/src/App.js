@@ -18,6 +18,11 @@ import HealthRecords from './pages/patient/HealthRecords';
 import SymptomChecker from './pages/patient/SymptomChecker';
 import PatientHistory from './pages/patient/PatientHistory';
 import MedicalChatbot from './pages/patient/MedicalChatbot';
+import ProviderChatbot from './pages/provider/ProviderChatbot';
+import ProviderReports from './pages/provider/ProviderReports';
+import AdminDashboard from './pages/admin/AdminDashboard';
+import AdminPatients from './pages/admin/AdminPatients';
+import AdminProviders from './pages/admin/AdminProviders';
 import ProfileSettings from './pages/ProfileSettings';
 import Messages from './pages/Messages';
 import NotFoundPage from './pages/NotFoundPage';
@@ -206,6 +211,48 @@ function App() {
               element={
                 <ProtectedRoute requiredRole="provider">
                   <ProviderConsultations />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/provider/chatbot" 
+              element={
+                <ProtectedRoute requiredRole="provider">
+                  <ProviderChatbot />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/provider/reports" 
+              element={
+                <ProtectedRoute requiredRole="provider">
+                  <ProviderReports />
+                </ProtectedRoute>
+              } 
+            />
+
+            {/* Admin Routes */}
+            <Route 
+              path="/admin" 
+              element={
+                <ProtectedRoute requiredRole="admin">
+                  <AdminDashboard />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/admin/patients" 
+              element={
+                <ProtectedRoute requiredRole="admin">
+                  <AdminPatients />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/admin/providers" 
+              element={
+                <ProtectedRoute requiredRole="admin">
+                  <AdminProviders />
                 </ProtectedRoute>
               } 
             />
