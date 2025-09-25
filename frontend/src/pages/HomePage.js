@@ -1,8 +1,30 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
+import React, { useEffect } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { useSelector } from 'react-redux';
 import { Helmet } from 'react-helmet-async';
 
 const HomePage = () => {
+  const navigate = useNavigate();
+  const { isAuthenticated, user } = useSelector(state => state.auth);
+
+  useEffect(() => {
+    // Redirect authenticated users to their dashboard
+    if (isAuthenticated && user?.role) {
+      const getDashboardRoute = (role) => {
+        switch (role) {
+          case 'patient':
+            return '/patient';
+          case 'provider':
+            return '/provider';
+          case 'admin':
+            return '/admin';
+          default:
+            return '/';
+        }
+      };
+      navigate(getDashboardRoute(user.role), { replace: true });
+    }
+  }, [isAuthenticated, user, navigate]);
   return (
     <>
       <Helmet>

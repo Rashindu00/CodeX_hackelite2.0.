@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { Helmet } from 'react-helmet-async';
-import { useSelector } from 'react-redux';
 import {
   CalendarDaysIcon,
   ClockIcon,
@@ -14,7 +13,7 @@ import { useNavigate } from 'react-router-dom';
 
 const AppointmentBooking = () => {
   const navigate = useNavigate();
-  const { user } = useSelector((state) => state.auth);
+  // const { user } = useSelector((state) => state.auth);
   const [currentStep, setCurrentStep] = useState(1);
   const [appointmentData, setAppointmentData] = useState({
     specialization: '',

@@ -11,7 +11,7 @@ import { store } from './store/store';
 import reportWebVitals from './reportWebVitals';
 
 // Import service worker for PWA functionality
-import * as serviceWorkerRegistration from './serviceWorkerRegistration';
+// import * as serviceWorkerRegistration from './serviceWorkerRegistration';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 

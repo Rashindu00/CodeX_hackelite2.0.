@@ -278,7 +278,7 @@ router.post('/login', loginValidation, asyncHandler(async (req, res) => {
   const accessToken = jwt.sign(
     { 
       userId: user._id, 
-      userType: user.role,
+      role: user.role,
       email: user.email 
     },
     process.env.JWT_SECRET,
@@ -315,12 +315,14 @@ router.post('/login', loginValidation, asyncHandler(async (req, res) => {
   res.json({
     success: true,
     data: {
-      accessToken,
-      refreshToken,
+      tokens: {
+        accessToken,
+        refreshToken
+      },
       user: {
         id: user._id,
         email: user.email,
-        userType: user.role,
+        role: user.role,
         firstName: user.firstName,
         lastName: user.lastName,
         isActive: user.isActive,
@@ -581,7 +583,7 @@ router.get('/me', authenticateToken, asyncHandler(async (req, res) => {
   let userData = {
     id: user._id,
     email: user.email,
-    userType: user.role,
+    role: user.role,
     isActive: user.isActive,
     emailVerified: user.emailVerified,
     lastLogin: user.lastLogin,
@@ -604,6 +606,101 @@ router.get('/me', authenticateToken, asyncHandler(async (req, res) => {
   res.json({
     success: true,
     data: { user: userData }
+  });
+}));
+
+// @route   GET /api/auth/profile
+// @desc    Get user profile with patient/provider data
+// @access  Private
+router.get('/profile', authenticateToken, asyncHandler(async (req, res) => {
+  const user = await User.findById(req.user.id).select('-password');
+  if (!user) {
+    return res.status(404).json({
+      success: false,
+      error: { message: 'User not found' }
+    });
+  }
+
+  let profileData = {
+    id: user._id,
+    name: user.name,
+    email: user.email,
+    role: user.role,
+    phone: user.phone,
+    isActive: user.isActive,
+    emailVerified: user.emailVerified,
+    createdAt: user.createdAt
+  };
+
+  // Get role-specific data
+  if (user.role === 'patient') {
+    const patient = await Patient.findOne({ user: user._id });
+    if (patient) {
+      profileData.patient = patient.toObject();
+    }
+  } else if (user.role === 'provider') {
+    const provider = await HealthcareProvider.findOne({ user: user._id });
+    if (provider) {
+      profileData.provider = provider.toObject();
+    }
+  }
+
+  res.json({
+    success: true,
+    data: profileData
+  });
+}));
+
+// @route   PUT /api/auth/change-password
+// @desc    Change user password
+// @access  Private
+router.put('/change-password', [
+  authenticateToken,
+  body('currentPassword').notEmpty().withMessage('Current password is required'),
+  body('newPassword')
+    .isLength({ min: 6 })
+    .withMessage('New password must be at least 6 characters long')
+], asyncHandler(async (req, res) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(400).json({
+      success: false,
+      error: { message: 'Validation failed', errors: formatValidationErrors(errors) }
+    });
+  }
+
+  const { currentPassword, newPassword } = req.body;
+  
+  const user = await User.findById(req.user.id);
+  if (!user) {
+    return res.status(404).json({
+      success: false,
+      error: { message: 'User not found' }
+    });
+  }
+
+  // Verify current password
+  const isMatch = await bcrypt.compare(currentPassword, user.password);
+  if (!isMatch) {
+    return res.status(400).json({
+      success: false,
+      error: { message: 'Current password is incorrect' }
+    });
+  }
+
+  // Hash new password
+  const saltRounds = 12;
+  const hashedPassword = await bcrypt.hash(newPassword, saltRounds);
+
+  // Update password
+  user.password = hashedPassword;
+  await user.save();
+
+  logger.info('Password changed successfully', { userId: user._id });
+
+  res.json({
+    success: true,
+    message: 'Password changed successfully'
   });
 }));
 

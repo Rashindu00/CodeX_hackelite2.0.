@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { Helmet } from 'react-helmet-async';
-import { useSelector } from 'react-redux';
 import {
   HeartIcon,
   ExclamationTriangleIcon,
@@ -18,7 +17,7 @@ import { useNavigate } from 'react-router-dom';
 
 const SymptomChecker = () => {
   const navigate = useNavigate();
-  const { user } = useSelector((state) => state.auth);
+  // const { user } = useSelector((state) => state.auth);
   
   const [currentStep, setCurrentStep] = useState(1);
   const [selectedSymptoms, setSelectedSymptoms] = useState([]);

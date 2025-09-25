@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { Helmet } from 'react-helmet-async';
-import { useSelector } from 'react-redux';
 import { toast } from 'react-hot-toast';
 import {
   DocumentTextIcon,
@@ -21,7 +20,7 @@ import api from '../../services/api';
 
 const HealthRecords = () => {
   const navigate = useNavigate();
-  const { user } = useSelector((state) => state.auth);
+  // const { user } = useSelector((state) => state.auth);
   const [activeTab, setActiveTab] = useState('overview');
   const [records, setRecords] = useState([]);
   const [vitals, setVitals] = useState([]);
@@ -223,6 +222,9 @@ const HealthRecords = () => {
   };
 
   const getSeverityColor = (severity) => {
+    if (!severity) {
+      return 'text-gray-600 bg-gray-100';
+    }
     switch (severity.toLowerCase()) {
       case 'severe':
         return 'text-red-600 bg-red-100';

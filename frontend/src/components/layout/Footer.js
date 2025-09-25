@@ -25,10 +25,10 @@ const Footer = () => {
               Platform
             </h3>
             <ul className="space-y-2">
-              <li><a href="#" className="text-gray-300 hover:text-white">For Patients</a></li>
-              <li><a href="#" className="text-gray-300 hover:text-white">For Providers</a></li>
-              <li><a href="#" className="text-gray-300 hover:text-white">Features</a></li>
-              <li><a href="#" className="text-gray-300 hover:text-white">Pricing</a></li>
+              <li><button className="text-gray-300 hover:text-white text-left">For Patients</button></li>
+              <li><button className="text-gray-300 hover:text-white text-left">For Providers</button></li>
+              <li><button className="text-gray-300 hover:text-white text-left">Features</button></li>
+              <li><button className="text-gray-300 hover:text-white text-left">Pricing</button></li>
             </ul>
           </div>
           
@@ -37,10 +37,10 @@ const Footer = () => {
               Support
             </h3>
             <ul className="space-y-2">
-              <li><a href="#" className="text-gray-300 hover:text-white">Help Center</a></li>
-              <li><a href="#" className="text-gray-300 hover:text-white">Contact Us</a></li>
-              <li><a href="#" className="text-gray-300 hover:text-white">Privacy Policy</a></li>
-              <li><a href="#" className="text-gray-300 hover:text-white">Terms of Service</a></li>
+              <li><button className="text-gray-300 hover:text-white text-left">Help Center</button></li>
+              <li><button className="text-gray-300 hover:text-white text-left">Contact Us</button></li>
+              <li><button className="text-gray-300 hover:text-white text-left">Privacy Policy</button></li>
+              <li><button className="text-gray-300 hover:text-white text-left">Terms of Service</button></li>
             </ul>
           </div>
         </div>

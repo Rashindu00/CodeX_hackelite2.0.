@@ -42,12 +42,42 @@ const upload = multer({
   }
 });
 
+// Test route to verify registration
+router.get('/test', (req, res) => {
+  res.json({ success: true, message: 'Health records routes working!' });
+});
+
 // @route   GET /api/health-records
 // @desc    Get all health records for authenticated patient
 // @access  Private
 router.get('/', authenticateToken, async (req, res) => {
   try {
-    const patient = await Patient.findOne({ user: req.user.id });
+    console.log('Health records GET route hit, user ID:', req.user.id);
+    console.log('User role:', req.user.role);
+    
+    // Check if user exists and is a patient
+    const User = require('../models/User');
+    const user = await User.findById(req.user.id);
+    console.log('User found:', !!user, 'Role:', user?.role);
+    
+    if (!user || user.role !== 'patient') {
+      return res.status(403).json({ error: { message: 'Access denied. Patient role required.' } });
+    }
+    
+    let patient = await Patient.findOne({ user: req.user.id });
+    console.log('Patient found:', !!patient);
+    
+    // If no patient record exists, create a default one
+    if (!patient) {
+      console.log('Creating default patient record...');
+      patient = new Patient({
+        user: req.user.id,
+        dateOfBirth: new Date('1990-01-01'), // Default date
+        gender: 'other' // Default gender
+      });
+      await patient.save();
+      console.log('Default patient record created');
+    }
     if (!patient) {
       return res.status(404).json({ error: { message: 'Patient profile not found' } });
     }
@@ -136,9 +166,23 @@ router.post('/upload', authenticateToken, upload.single('file'), async (req, res
 // @access  Private
 router.post('/vitals', authenticateToken, async (req, res) => {
   try {
-    const patient = await Patient.findOne({ user: req.user.id });
+    // Check if user is a patient
+    const User = require('../models/User');
+    const user = await User.findById(req.user.id);
+    if (!user || user.role !== 'patient') {
+      return res.status(403).json({ error: { message: 'Access denied. Patient role required.' } });
+    }
+    
+    let patient = await Patient.findOne({ user: req.user.id });
+    
+    // Create default patient record if it doesn't exist
     if (!patient) {
-      return res.status(404).json({ error: { message: 'Patient profile not found' } });
+      patient = new Patient({
+        user: req.user.id,
+        dateOfBirth: new Date('1990-01-01'),
+        gender: 'other'
+      });
+      await patient.save();
     }
 
     const { bloodPressure, heartRate, temperature, weight, height, notes, date } = req.body;
@@ -188,9 +232,23 @@ router.post('/vitals', authenticateToken, async (req, res) => {
 // @access  Private
 router.post('/medications', authenticateToken, async (req, res) => {
   try {
-    const patient = await Patient.findOne({ user: req.user.id });
+    // Check if user is a patient
+    const User = require('../models/User');
+    const user = await User.findById(req.user.id);
+    if (!user || user.role !== 'patient') {
+      return res.status(403).json({ error: { message: 'Access denied. Patient role required.' } });
+    }
+    
+    let patient = await Patient.findOne({ user: req.user.id });
+    
+    // Create default patient record if it doesn't exist
     if (!patient) {
-      return res.status(404).json({ error: { message: 'Patient profile not found' } });
+      patient = new Patient({
+        user: req.user.id,
+        dateOfBirth: new Date('1990-01-01'),
+        gender: 'other'
+      });
+      await patient.save();
     }
 
     const { 
@@ -253,9 +311,23 @@ router.post('/medications', authenticateToken, async (req, res) => {
 // @access  Private
 router.post('/allergies', authenticateToken, async (req, res) => {
   try {
-    const patient = await Patient.findOne({ user: req.user.id });
+    // Check if user is a patient
+    const User = require('../models/User');
+    const user = await User.findById(req.user.id);
+    if (!user || user.role !== 'patient') {
+      return res.status(403).json({ error: { message: 'Access denied. Patient role required.' } });
+    }
+    
+    let patient = await Patient.findOne({ user: req.user.id });
+    
+    // Create default patient record if it doesn't exist
     if (!patient) {
-      return res.status(404).json({ error: { message: 'Patient profile not found' } });
+      patient = new Patient({
+        user: req.user.id,
+        dateOfBirth: new Date('1990-01-01'),
+        gender: 'other'
+      });
+      await patient.save();
     }
 
     const { 
