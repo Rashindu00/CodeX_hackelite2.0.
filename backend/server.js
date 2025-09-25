@@ -13,6 +13,7 @@ const appointmentRoutes = require('./routes/appointments');
 const consultationRoutes = require('./routes/consultations');
 const healthRecordRoutes = require('./routes/healthRecords');
 const notificationRoutes = require('./routes/notifications');
+const chatbotRoutes = require('./routes/chatbot');
 
 const { connectDatabase } = require('./config/database');
 const logger = require('./utils/logger');
@@ -93,6 +94,7 @@ app.use('/api/appointments', appointmentRoutes);
 app.use('/api/consultations', consultationRoutes);
 app.use('/api/health-records', healthRecordRoutes);
 app.use('/api/notifications', notificationRoutes);
+app.use('/api/chatbot', chatbotRoutes);
 
 // Serve static files (uploaded files)
 app.use('/uploads', express.static('uploads'));

@@ -15,6 +15,7 @@ import {
   XMarkIcon,
   ArrowRightOnRectangleIcon,
   ChatBubbleLeftRightIcon,
+  ChatBubbleLeftEllipsisIcon,
   ClockIcon
 } from '@heroicons/react/24/outline';
 import { logoutUser } from '../../store/slices/authSlice';
@@ -47,6 +48,7 @@ const DashboardLayout = ({ children }) => {
     if (user?.role === 'patient') {
       return [
         { name: 'Dashboard', href: '/patient', icon: HomeIcon },
+        { name: 'AI Medical Assistant', href: '/patient/chatbot', icon: ChatBubbleLeftEllipsisIcon },
         { name: 'Book Appointment', href: '/patient/appointment-booking', icon: CalendarDaysIcon },
         { name: 'Video Consultation', href: '/patient/video-consultation', icon: VideoCameraIcon },
         { name: 'Health Records', href: '/patient/health-records', icon: DocumentTextIcon },

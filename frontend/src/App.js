@@ -17,6 +17,7 @@ import VideoConsultation from './pages/patient/VideoConsultation';
 import HealthRecords from './pages/patient/HealthRecords';
 import SymptomChecker from './pages/patient/SymptomChecker';
 import PatientHistory from './pages/patient/PatientHistory';
+import MedicalChatbot from './pages/patient/MedicalChatbot';
 import ProfileSettings from './pages/ProfileSettings';
 import Messages from './pages/Messages';
 import NotFoundPage from './pages/NotFoundPage';
@@ -115,6 +116,14 @@ function App() {
               element={
                 <ProtectedRoute requiredRole="patient">
                   <PatientDashboard />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/patient/chatbot" 
+              element={
+                <ProtectedRoute requiredRole="patient">
+                  <MedicalChatbot />
                 </ProtectedRoute>
               } 
             />
