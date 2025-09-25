@@ -623,7 +623,7 @@ router.get('/profile', authenticateToken, asyncHandler(async (req, res) => {
 
   let profileData = {
     id: user._id,
-    name: user.name,
+    name: user.fullName, // Use virtual fullName field that combines firstName + lastName
     email: user.email,
     role: user.role,
     phone: user.phone,

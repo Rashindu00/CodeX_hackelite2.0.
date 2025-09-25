@@ -98,6 +98,35 @@ const patientSchema = new mongoose.Schema({
     effectiveDate: Date,
     expirationDate: Date
   },
+  recommendations: [{
+    title: String,
+    description: String,
+    category: {
+      type: String,
+      enum: ['lifestyle', 'medication', 'follow-up', 'diet', 'exercise', 'general'],
+      default: 'general'
+    },
+    priority: {
+      type: String,
+      enum: ['low', 'medium', 'high'],
+      default: 'medium'
+    },
+    provider: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'HealthcareProvider'
+    },
+    medications: [{
+      name: String,
+      dosage: String,
+      frequency: String,
+      duration: String
+    }],
+    followUp: String,
+    createdAt: {
+      type: Date,
+      default: Date.now
+    }
+  }],
   primaryPhysician: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'HealthcareProvider',

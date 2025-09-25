@@ -13,7 +13,9 @@ import {
   ArrowLeftIcon,
   PlusIcon,
   XMarkIcon,
-  ExclamationTriangleIcon
+  ExclamationTriangleIcon,
+  PencilIcon,
+  TrashIcon
 } from '@heroicons/react/24/outline';
 import DashboardLayout from '../../components/layout/DashboardLayout';
 import { useNavigate } from 'react-router-dom';
@@ -34,6 +36,14 @@ const HealthRecords = () => {
   const [showVitalsModal, setShowVitalsModal] = useState(false);
   const [showMedicationModal, setShowMedicationModal] = useState(false);
   const [showAllergyModal, setShowAllergyModal] = useState(false);
+  const [showDeleteConfirmModal, setShowDeleteConfirmModal] = useState(false);
+  
+  // Edit states
+  const [editingVital, setEditingVital] = useState(null);
+  const [editingMedication, setEditingMedication] = useState(null);
+  const [editingAllergy, setEditingAllergy] = useState(null);
+  const [editingRecord, setEditingRecord] = useState(null);
+  const [deleteTarget, setDeleteTarget] = useState(null);
   
   // Form states
   const [uploadForm, setUploadForm] = useState({
@@ -167,9 +177,17 @@ const HealthRecords = () => {
     e.preventDefault();
     try {
       setLoading(true);
-      await api.post('/health-records/vitals', vitalsForm);
-      toast.success('Vital signs added successfully!');
+      if (editingVital) {
+        // Update existing vital
+        await api.put(`/health-records/vitals/${editingVital._id}`, vitalsForm);
+        toast.success('Vital signs updated successfully!');
+      } else {
+        // Create new vital
+        await api.post('/health-records/vitals', vitalsForm);
+        toast.success('Vital signs added successfully!');
+      }
       setShowVitalsModal(false);
+      setEditingVital(null);
       setVitalsForm({
         bloodPressure: '',
         heartRate: '',
@@ -181,8 +199,8 @@ const HealthRecords = () => {
       });
       fetchHealthRecords();
     } catch (error) {
-      console.error('Error adding vitals:', error);
-      toast.error('Failed to add vital signs');
+      console.error('Error saving vitals:', error);
+      toast.error(editingVital ? 'Failed to update vital signs' : 'Failed to add vital signs');
     } finally {
       setLoading(false);
     }
@@ -192,9 +210,17 @@ const HealthRecords = () => {
     e.preventDefault();
     try {
       setLoading(true);
-      await api.post('/health-records/medications', medicationForm);
-      toast.success('Medication added successfully!');
+      if (editingMedication) {
+        // Update existing medication
+        await api.put(`/health-records/medications/${editingMedication._id}`, medicationForm);
+        toast.success('Medication updated successfully!');
+      } else {
+        // Create new medication
+        await api.post('/health-records/medications', medicationForm);
+        toast.success('Medication added successfully!');
+      }
       setShowMedicationModal(false);
+      setEditingMedication(null);
       setMedicationForm({
         medicationName: '',
         dosage: '',
@@ -207,8 +233,8 @@ const HealthRecords = () => {
       });
       fetchHealthRecords();
     } catch (error) {
-      console.error('Error adding medication:', error);
-      toast.error('Failed to add medication');
+      console.error('Error saving medication:', error);
+      toast.error(editingMedication ? 'Failed to update medication' : 'Failed to add medication');
     } finally {
       setLoading(false);
     }
@@ -218,9 +244,17 @@ const HealthRecords = () => {
     e.preventDefault();
     try {
       setLoading(true);
-      await api.post('/health-records/allergies', allergyForm);
-      toast.success('Allergy added successfully!');
+      if (editingAllergy) {
+        // Update existing allergy
+        await api.put(`/health-records/allergies/${editingAllergy._id}`, allergyForm);
+        toast.success('Allergy updated successfully!');
+      } else {
+        // Create new allergy
+        await api.post('/health-records/allergies', allergyForm);
+        toast.success('Allergy added successfully!');
+      }
       setShowAllergyModal(false);
+      setEditingAllergy(null);
       setAllergyForm({
         allergen: '',
         severity: 'mild',
@@ -230,8 +264,95 @@ const HealthRecords = () => {
       });
       fetchHealthRecords();
     } catch (error) {
-      console.error('Error adding allergy:', error);
-      toast.error('Failed to add allergy');
+      console.error('Error saving allergy:', error);
+      toast.error(editingAllergy ? 'Failed to update allergy' : 'Failed to add allergy');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Edit handlers
+  const handleEditVital = (vital) => {
+    setEditingVital(vital);
+    setVitalsForm({
+      bloodPressure: vital.data?.bloodPressure ? `${vital.data.bloodPressure.systolic}/${vital.data.bloodPressure.diastolic}` : '',
+      heartRate: vital.data?.heartRate || '',
+      temperature: vital.data?.temperature || '',
+      weight: vital.data?.weight || '',
+      height: vital.data?.height || '',
+      notes: vital.data?.notes || '',
+      date: vital.date ? vital.date.split('T')[0] : new Date().toISOString().split('T')[0]
+    });
+    setShowVitalsModal(true);
+  };
+
+  const handleEditMedication = (medication) => {
+    setEditingMedication(medication);
+    setMedicationForm({
+      medicationName: medication.data?.name || medication.data?.medicationName || '',
+      dosage: medication.data?.dosage || '',
+      frequency: medication.data?.frequency || '',
+      startDate: medication.data?.startDate ? medication.data.startDate.split('T')[0] : medication.date.split('T')[0],
+      endDate: medication.data?.endDate ? medication.data.endDate.split('T')[0] : '',
+      prescribedBy: medication.data?.prescribedBy || '',
+      notes: medication.data?.notes || '',
+      status: medication.status || 'active'
+    });
+    setShowMedicationModal(true);
+  };
+
+  const handleEditAllergy = (allergy) => {
+    setEditingAllergy(allergy);
+    setAllergyForm({
+      allergen: allergy.data?.allergen || '',
+      severity: allergy.data?.severity || 'mild',
+      reaction: allergy.data?.reaction || '',
+      diagnosedDate: allergy.data?.diagnosedDate ? allergy.data.diagnosedDate.split('T')[0] : allergy.date.split('T')[0],
+      notes: allergy.data?.notes || ''
+    });
+    setShowAllergyModal(true);
+  };
+
+  // Delete handlers
+  const handleDeleteConfirm = (record, type) => {
+    setDeleteTarget({ record, type });
+    setShowDeleteConfirmModal(true);
+  };
+
+  const handleDeleteRecord = async () => {
+    if (!deleteTarget) return;
+    
+    try {
+      setLoading(true);
+      const { record, type } = deleteTarget;
+      
+      switch (type) {
+        case 'vital':
+          await api.delete(`/health-records/vitals/${record._id}`);
+          toast.success('Vital signs deleted successfully!');
+          break;
+        case 'medication':
+          await api.delete(`/health-records/medications/${record._id}`);
+          toast.success('Medication deleted successfully!');
+          break;
+        case 'allergy':
+          await api.delete(`/health-records/allergies/${record._id}`);
+          toast.success('Allergy deleted successfully!');
+          break;
+        case 'document':
+          await api.delete(`/health-records/${record._id}`);
+          toast.success('Medical record deleted successfully!');
+          break;
+        default:
+          throw new Error('Unknown record type');
+      }
+      
+      setShowDeleteConfirmModal(false);
+      setDeleteTarget(null);
+      fetchHealthRecords();
+    } catch (error) {
+      console.error('Error deleting record:', error);
+      toast.error('Failed to delete record');
     } finally {
       setLoading(false);
     }
@@ -642,6 +763,13 @@ const HealthRecords = () => {
                                   >
                                     <ArrowDownTrayIcon className="h-4 w-4" />
                                   </button>
+                                  <button 
+                                    onClick={() => handleDeleteConfirm(record, 'document')}
+                                    className="text-red-600 hover:text-red-700 p-1 rounded hover:bg-red-50"
+                                    title="Delete record"
+                                  >
+                                    <TrashIcon className="h-4 w-4" />
+                                  </button>
                                 </div>
                               </td>
                             </tr>
@@ -689,6 +817,7 @@ const HealthRecords = () => {
                             <th className="text-left py-3 px-4 font-medium text-gray-900">Heart Rate</th>
                             <th className="text-left py-3 px-4 font-medium text-gray-900">Temperature</th>
                             <th className="text-left py-3 px-4 font-medium text-gray-900">Weight</th>
+                            <th className="text-left py-3 px-4 font-medium text-gray-900">Actions</th>
                           </tr>
                         </thead>
                         <tbody>
@@ -712,10 +841,28 @@ const HealthRecords = () => {
                               <td className="py-3 px-4 text-sm text-gray-600">
                                 {vital.data?.weight || 'N/A'} lbs
                               </td>
+                              <td className="py-3 px-4">
+                                <div className="flex space-x-2">
+                                  <button 
+                                    onClick={() => handleEditVital(vital)}
+                                    className="text-blue-600 hover:text-blue-700 p-1 rounded hover:bg-blue-50"
+                                    title="Edit vital signs"
+                                  >
+                                    <PencilIcon className="h-4 w-4" />
+                                  </button>
+                                  <button 
+                                    onClick={() => handleDeleteConfirm(vital, 'vital')}
+                                    className="text-red-600 hover:text-red-700 p-1 rounded hover:bg-red-50"
+                                    title="Delete vital signs"
+                                  >
+                                    <TrashIcon className="h-4 w-4" />
+                                  </button>
+                                </div>
+                              </td>
                             </tr>
                           )) : (
                             <tr>
-                              <td colSpan="5" className="py-8 text-center text-gray-500">
+                              <td colSpan="6" className="py-8 text-center text-gray-500">
                                 <HeartIcon className="h-12 w-12 mx-auto mb-4 text-gray-300" />
                                 <p>No vital signs recorded</p>
                                 <button 
@@ -768,9 +915,27 @@ const HealthRecords = () => {
                                 </p>
                               )}
                             </div>
-                            <span className={`px-2 py-1 text-xs font-medium rounded-full ${getStatusColor(medication.status || 'active')}`}>
-                              {medication.status || 'active'}
-                            </span>
+                            <div className="flex items-center space-x-2">
+                              <span className={`px-2 py-1 text-xs font-medium rounded-full ${getStatusColor(medication.status || 'active')}`}>
+                                {medication.status || 'active'}
+                              </span>
+                              <div className="flex space-x-1">
+                                <button 
+                                  onClick={() => handleEditMedication(medication)}
+                                  className="text-blue-600 hover:text-blue-700 p-1 rounded hover:bg-blue-50"
+                                  title="Edit medication"
+                                >
+                                  <PencilIcon className="h-4 w-4" />
+                                </button>
+                                <button 
+                                  onClick={() => handleDeleteConfirm(medication, 'medication')}
+                                  className="text-red-600 hover:text-red-700 p-1 rounded hover:bg-red-50"
+                                  title="Delete medication"
+                                >
+                                  <TrashIcon className="h-4 w-4" />
+                                </button>
+                              </div>
+                            </div>
                           </div>
                         </div>
                       )) : (
@@ -824,9 +989,27 @@ const HealthRecords = () => {
                                 Recorded on {new Date(allergy.date || allergy.createdAt).toLocaleDateString()}
                               </p>
                             </div>
-                            <span className={`px-2 py-1 text-xs font-medium rounded-full ${getSeverityColor(allergy.data?.severity || allergy.severity || 'moderate')}`}>
-                              {allergy.data?.severity || allergy.severity || 'moderate'}
-                            </span>
+                            <div className="flex items-center space-x-2">
+                              <span className={`px-2 py-1 text-xs font-medium rounded-full ${getSeverityColor(allergy.data?.severity || allergy.severity || 'moderate')}`}>
+                                {allergy.data?.severity || allergy.severity || 'moderate'}
+                              </span>
+                              <div className="flex space-x-1">
+                                <button 
+                                  onClick={() => handleEditAllergy(allergy)}
+                                  className="text-blue-600 hover:text-blue-700 p-1 rounded hover:bg-blue-50"
+                                  title="Edit allergy"
+                                >
+                                  <PencilIcon className="h-4 w-4" />
+                                </button>
+                                <button 
+                                  onClick={() => handleDeleteConfirm(allergy, 'allergy')}
+                                  className="text-red-600 hover:text-red-700 p-1 rounded hover:bg-red-50"
+                                  title="Delete allergy"
+                                >
+                                  <TrashIcon className="h-4 w-4" />
+                                </button>
+                              </div>
+                            </div>
                           </div>
                         </div>
                       )) : (
@@ -939,14 +1122,17 @@ const HealthRecords = () => {
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
             <div className="bg-white rounded-lg w-full max-w-md max-h-[90vh] flex flex-col">
               <div className="flex justify-between items-center p-6 pb-4 border-b border-gray-200">
-                <h3 className="text-lg font-semibold">Add Vital Signs</h3>
-                <button onClick={() => setShowVitalsModal(false)}>
+                <h3 className="text-lg font-semibold">{editingVital ? 'Edit Vital Signs' : 'Add Vital Signs'}</h3>
+                <button onClick={() => {
+                  setShowVitalsModal(false);
+                  setEditingVital(null);
+                }}>
                   <XMarkIcon className="h-6 w-6 text-gray-400 hover:text-gray-600" />
                 </button>
               </div>
               <form onSubmit={handleVitalsSubmit} className="flex flex-col flex-1 min-h-0">
                 <div className="flex-1 overflow-y-auto p-6">
-                <div className="space-y-4">
+                  <div className="space-y-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
                       Blood Pressure (systolic/diastolic)
@@ -1033,21 +1219,22 @@ const HealthRecords = () => {
                       placeholder="Additional notes"
                     />
                   </div>
+                  </div>
                 </div>
-                <div className="flex justify-end space-x-3 mt-6">
+                <div className="flex justify-end space-x-3 p-6 pt-4 border-t border-gray-200 bg-gray-50">
                   <button
                     type="button"
                     onClick={() => setShowVitalsModal(false)}
-                    className="px-4 py-2 text-gray-600 border border-gray-300 rounded-md hover:bg-gray-50"
+                    className="px-4 py-2 text-gray-600 border border-gray-300 rounded-md hover:bg-gray-50 transition-colors"
                   >
                     Cancel
                   </button>
                   <button
                     type="submit"
                     disabled={loading}
-                    className="px-4 py-2 bg-teal-600 text-white rounded-md hover:bg-teal-700 disabled:opacity-50"
+                    className="px-4 py-2 bg-teal-600 text-white rounded-md hover:bg-teal-700 disabled:opacity-50 transition-colors"
                   >
-                    {loading ? 'Adding...' : 'Add Vitals'}
+                    {loading ? (editingVital ? 'Updating...' : 'Adding...') : (editingVital ? 'Update Vitals' : 'Add Vitals')}
                   </button>
                 </div>
               </form>
@@ -1057,16 +1244,20 @@ const HealthRecords = () => {
 
         {/* Medication Modal */}
         {showMedicationModal && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-            <div className="bg-white rounded-lg p-6 w-full max-w-md">
-              <div className="flex justify-between items-center mb-4">
-                <h3 className="text-lg font-semibold">Add Medication</h3>
-                <button onClick={() => setShowMedicationModal(false)}>
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+            <div className="bg-white rounded-lg w-full max-w-md max-h-[90vh] flex flex-col">
+              <div className="flex justify-between items-center p-6 pb-4 border-b border-gray-200">
+                <h3 className="text-lg font-semibold">{editingMedication ? 'Edit Medication' : 'Add Medication'}</h3>
+                <button onClick={() => {
+                  setShowMedicationModal(false);
+                  setEditingMedication(null);
+                }}>
                   <XMarkIcon className="h-6 w-6 text-gray-400 hover:text-gray-600" />
                 </button>
               </div>
-              <form onSubmit={handleMedicationSubmit}>
-                <div className="space-y-4">
+              <form onSubmit={handleMedicationSubmit} className="flex flex-col flex-1 min-h-0">
+                <div className="flex-1 overflow-y-auto p-6">
+                  <div className="space-y-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
                       Medication Name *
@@ -1152,21 +1343,22 @@ const HealthRecords = () => {
                       placeholder="Additional notes"
                     />
                   </div>
+                  </div>
                 </div>
-                <div className="flex justify-end space-x-3 mt-6">
+                <div className="flex justify-end space-x-3 p-6 pt-4 border-t border-gray-200 bg-gray-50">
                   <button
                     type="button"
                     onClick={() => setShowMedicationModal(false)}
-                    className="px-4 py-2 text-gray-600 border border-gray-300 rounded-md hover:bg-gray-50"
+                    className="px-4 py-2 text-gray-600 border border-gray-300 rounded-md hover:bg-gray-50 transition-colors"
                   >
                     Cancel
                   </button>
                   <button
                     type="submit"
                     disabled={loading}
-                    className="px-4 py-2 bg-teal-600 text-white rounded-md hover:bg-teal-700 disabled:opacity-50"
+                    className="px-4 py-2 bg-teal-600 text-white rounded-md hover:bg-teal-700 disabled:opacity-50 transition-colors"
                   >
-                    {loading ? 'Adding...' : 'Add Medication'}
+                    {loading ? (editingMedication ? 'Updating...' : 'Adding...') : (editingMedication ? 'Update Medication' : 'Add Medication')}
                   </button>
                 </div>
               </form>
@@ -1176,16 +1368,20 @@ const HealthRecords = () => {
 
         {/* Allergy Modal */}
         {showAllergyModal && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-            <div className="bg-white rounded-lg p-6 w-full max-w-md">
-              <div className="flex justify-between items-center mb-4">
-                <h3 className="text-lg font-semibold">Add Allergy</h3>
-                <button onClick={() => setShowAllergyModal(false)}>
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+            <div className="bg-white rounded-lg w-full max-w-md max-h-[90vh] flex flex-col">
+              <div className="flex justify-between items-center p-6 pb-4 border-b border-gray-200">
+                <h3 className="text-lg font-semibold">{editingAllergy ? 'Edit Allergy' : 'Add Allergy'}</h3>
+                <button onClick={() => {
+                  setShowAllergyModal(false);
+                  setEditingAllergy(null);
+                }}>
                   <XMarkIcon className="h-6 w-6 text-gray-400 hover:text-gray-600" />
                 </button>
               </div>
-              <form onSubmit={handleAllergySubmit}>
-                <div className="space-y-4">
+              <form onSubmit={handleAllergySubmit} className="flex flex-col flex-1 min-h-0">
+                <div className="flex-1 overflow-y-auto p-6">
+                  <div className="space-y-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
                       Allergen *
@@ -1249,24 +1445,61 @@ const HealthRecords = () => {
                       placeholder="Additional notes"
                     />
                   </div>
+                  </div>
                 </div>
-                <div className="flex justify-end space-x-3 mt-6">
+                <div className="flex justify-end space-x-3 p-6 pt-4 border-t border-gray-200 bg-gray-50">
                   <button
                     type="button"
                     onClick={() => setShowAllergyModal(false)}
-                    className="px-4 py-2 text-gray-600 border border-gray-300 rounded-md hover:bg-gray-50"
+                    className="px-4 py-2 text-gray-600 border border-gray-300 rounded-md hover:bg-gray-50 transition-colors"
                   >
                     Cancel
                   </button>
                   <button
                     type="submit"
                     disabled={loading}
-                    className="px-4 py-2 bg-teal-600 text-white rounded-md hover:bg-teal-700 disabled:opacity-50"
+                    className="px-4 py-2 bg-teal-600 text-white rounded-md hover:bg-teal-700 disabled:opacity-50 transition-colors"
                   >
-                    {loading ? 'Adding...' : 'Add Allergy'}
+                    {loading ? (editingAllergy ? 'Updating...' : 'Adding...') : (editingAllergy ? 'Update Allergy' : 'Add Allergy')}
                   </button>
                 </div>
               </form>
+            </div>
+          </div>
+        )}
+
+        {/* Delete Confirmation Modal */}
+        {showDeleteConfirmModal && deleteTarget && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+            <div className="bg-white rounded-lg w-full max-w-md">
+              <div className="p-6">
+                <div className="flex items-center mb-4">
+                  <ExclamationTriangleIcon className="h-6 w-6 text-red-600 mr-3" />
+                  <h3 className="text-lg font-semibold text-gray-900">Confirm Delete</h3>
+                </div>
+                <p className="text-gray-600 mb-6">
+                  Are you sure you want to delete this {deleteTarget.type === 'document' ? 'medical record' : deleteTarget.type}? 
+                  This action cannot be undone.
+                </p>
+                <div className="flex justify-end space-x-3">
+                  <button
+                    onClick={() => {
+                      setShowDeleteConfirmModal(false);
+                      setDeleteTarget(null);
+                    }}
+                    className="px-4 py-2 text-gray-600 border border-gray-300 rounded-md hover:bg-gray-50 transition-colors"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={handleDeleteRecord}
+                    disabled={loading}
+                    className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 disabled:opacity-50 transition-colors"
+                  >
+                    {loading ? 'Deleting...' : 'Delete'}
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
         )}

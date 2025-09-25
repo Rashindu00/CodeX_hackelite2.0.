@@ -16,6 +16,7 @@ import AppointmentBooking from './pages/patient/AppointmentBooking';
 import VideoConsultation from './pages/patient/VideoConsultation';
 import HealthRecords from './pages/patient/HealthRecords';
 import SymptomChecker from './pages/patient/SymptomChecker';
+import PatientHistory from './pages/patient/PatientHistory';
 import ProfileSettings from './pages/ProfileSettings';
 import Messages from './pages/Messages';
 import NotFoundPage from './pages/NotFoundPage';
@@ -46,7 +47,8 @@ function App() {
                          !location.pathname.startsWith('/admin') && 
                          !location.pathname.startsWith('/profile') && 
                          !location.pathname.startsWith('/consultation') &&
-                         !location.pathname.startsWith('/dashboard');
+                         !location.pathname.startsWith('/dashboard') &&
+                         !location.pathname.startsWith('/messages');
   const shouldShowNavbar = publicRoutes.includes(location.pathname) || isNotFoundPage;
 
   useEffect(() => {
@@ -153,6 +155,14 @@ function App() {
               element={
                 <ProtectedRoute requiredRole="patient">
                   <SymptomChecker />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/patient/history" 
+              element={
+                <ProtectedRoute requiredRole="patient">
+                  <PatientHistory />
                 </ProtectedRoute>
               } 
             />

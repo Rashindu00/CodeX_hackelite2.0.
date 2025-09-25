@@ -51,6 +51,31 @@ const appointmentSchema = new mongoose.Schema({
     duration: String,
     instructions: String
   }],
+  recommendations: [{
+    title: String,
+    description: String,
+    category: {
+      type: String,
+      enum: ['lifestyle', 'medication', 'follow-up', 'diet', 'exercise', 'general'],
+      default: 'general'
+    },
+    priority: {
+      type: String,
+      enum: ['low', 'medium', 'high'],
+      default: 'medium'
+    },
+    medications: [{
+      name: String,
+      dosage: String,
+      frequency: String,
+      duration: String
+    }],
+    followUp: String,
+    createdAt: {
+      type: Date,
+      default: Date.now
+    }
+  }],
   followUpRequired: {
     type: Boolean,
     default: false

@@ -9,6 +9,7 @@ import {
   ChartBarIcon,
   DocumentTextIcon,
   VideoCameraIcon,
+  ClockIcon,
 } from '@heroicons/react/24/outline';
 import DashboardLayout from '../../components/layout/DashboardLayout';
 
@@ -87,6 +88,12 @@ const PatientDashboard = () => {
       icon: HeartIcon,
       color: 'bg-red-500',
       href: '/patient/symptom-checker'
+    },
+    {
+      name: 'Medical History',
+      icon: ClockIcon,
+      color: 'bg-purple-500',
+      href: '/patient/history'
     }
   ];
 

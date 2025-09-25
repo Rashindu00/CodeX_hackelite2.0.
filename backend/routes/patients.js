@@ -40,7 +40,12 @@ router.put('/profile', [
   const { name, phone, dateOfBirth, gender, bloodType } = req.body;
 
   // Update user basic info
-  if (name) user.name = name;
+  if (name) {
+    // Parse name into firstName and lastName
+    const nameParts = name.trim().split(' ');
+    user.firstName = nameParts[0] || '';
+    user.lastName = nameParts.slice(1).join(' ') || '';
+  }
   if (phone) user.phone = phone;
   await user.save();
 
@@ -69,7 +74,7 @@ router.put('/profile', [
     data: {
       user: {
         id: user._id,
-        name: user.name,
+        name: user.fullName, // Use virtual fullName field
         email: user.email,
         phone: user.phone
       },
@@ -244,6 +249,163 @@ router.put('/notifications', [
     data: {
       preferences: req.body
     }
+  });
+}));
+
+// @route   GET /api/patients/history
+// @desc    Get patient's complete history (appointments, consultations, recommendations)
+// @access  Private (Patient only)
+router.get('/history', authenticateToken, asyncHandler(async (req, res) => {
+  // Get patient record
+  const patient = await Patient.findOne({ user: req.user._id });
+  if (!patient) {
+    return res.status(404).json({
+      success: false,
+      message: 'Patient record not found'
+    });
+  }
+
+  const Appointment = require('../models/Appointment');
+  const Consultation = require('../models/Consultation');
+
+  // Fetch appointment history
+  const appointments = await Appointment.find({ 
+    patient: patient._id 
+  })
+  .populate('provider', 'name specialization')
+  .sort({ appointmentDate: -1 });
+
+  // Fetch consultation history (if you have a Consultation model)
+  let consultations = [];
+  try {
+    consultations = await Consultation.find({ 
+      patient: patient._id 
+    })
+    .populate('provider', 'name specialization')
+    .sort({ startedAt: -1 });
+  } catch (error) {
+    console.log('Consultation model not found, skipping consultations');
+  }
+
+  // Fetch recommendations (assuming they're stored in appointments or a separate model)
+  const recommendations = [];
+  
+  // Check for recommendations in completed appointments
+  const completedAppointments = appointments.filter(apt => apt.status === 'completed');
+  for (const appointment of completedAppointments) {
+    if (appointment.recommendations && appointment.recommendations.length > 0) {
+      appointment.recommendations.forEach(rec => {
+        recommendations.push({
+          _id: `${appointment._id}_${rec._id || Date.now()}`,
+          title: rec.title || 'General Recommendation',
+          description: rec.description,
+          category: rec.category || 'General',
+          medications: rec.medications || [],
+          followUp: rec.followUp,
+          priority: rec.priority || 'medium',
+          provider: appointment.provider,
+          createdAt: appointment.appointmentDate,
+          appointmentId: appointment._id
+        });
+      });
+    }
+  }
+
+  // Also check for general recommendations in patient record
+  if (patient.recommendations && patient.recommendations.length > 0) {
+    patient.recommendations.forEach(rec => {
+      recommendations.push({
+        _id: rec._id || `patient_${Date.now()}`,
+        title: rec.title || 'General Recommendation',
+        description: rec.description,
+        category: rec.category || 'General',
+        medications: rec.medications || [],
+        followUp: rec.followUp,
+        priority: rec.priority || 'medium',
+        provider: rec.provider || { name: 'Healthcare Team' },
+        createdAt: rec.createdAt || patient.createdAt
+      });
+    });
+  }
+
+  // Sort recommendations by date (newest first)
+  recommendations.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+
+  res.json({
+    success: true,
+    appointments: appointments,
+    consultations: consultations,
+    recommendations: recommendations
+  });
+}));
+
+// @route   GET /api/patients/appointment/:id
+// @desc    Get specific appointment details with recommendations
+// @access  Private (Patient only)
+router.get('/appointment/:id', authenticateToken, asyncHandler(async (req, res) => {
+  const patient = await Patient.findOne({ user: req.user._id });
+  if (!patient) {
+    return res.status(404).json({
+      success: false,
+      message: 'Patient record not found'
+    });
+  }
+
+  const Appointment = require('../models/Appointment');
+  const appointment = await Appointment.findOne({
+    _id: req.params.id,
+    patient: patient._id
+  }).populate('provider', 'name specialization email');
+
+  if (!appointment) {
+    return res.status(404).json({
+      success: false,
+      message: 'Appointment not found'
+    });
+  }
+
+  res.json({
+    success: true,
+    appointment
+  });
+}));
+
+// @route   GET /api/patients/consultation/:id
+// @desc    Get specific consultation details
+// @access  Private (Patient only)
+router.get('/consultation/:id', authenticateToken, asyncHandler(async (req, res) => {
+  const patient = await Patient.findOne({ user: req.user._id });
+  if (!patient) {
+    return res.status(404).json({
+      success: false,
+      message: 'Patient record not found'
+    });
+  }
+
+  let consultation = null;
+  try {
+    const Consultation = require('../models/Consultation');
+    consultation = await Consultation.findOne({
+      _id: req.params.id,
+      patient: patient._id
+    }).populate('provider', 'name specialization email');
+  } catch (error) {
+    return res.status(404).json({
+      success: false,
+      message: 'Consultation model not available'
+    });
+  }
+
+  if (!consultation) {
+    return res.status(404).json({
+      success: false,
+      message: 'Consultation not found'
+    });
+  }
+
+  res.json({
+    success: true,
+    consultation
   });
 }));
 

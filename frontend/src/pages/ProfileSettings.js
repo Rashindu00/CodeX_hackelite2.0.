@@ -242,7 +242,7 @@ const ProfileSettings = () => {
                   onClick={() => setActiveTab(tab.id)}
                   className={`flex items-center space-x-2 py-4 px-1 border-b-2 font-medium text-sm ${
                     activeTab === tab.id
-                      ? 'border-blue-500 text-blue-600'
+                      ? 'border-green-500 text-green-600'
                       : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
                   }`}
                 >
@@ -261,7 +261,7 @@ const ProfileSettings = () => {
               <h2 className="text-xl font-semibold text-gray-900">Personal Information</h2>
               <button
                 onClick={() => setIsEditing(!isEditing)}
-                className="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+                className="flex items-center space-x-2 px-4 py-2 bg-green-700 text-white rounded-md hover:bg-green-800"
               >
                 <PencilIcon className="h-4 w-4" />
                 <span>{isEditing ? 'Cancel' : 'Edit'}</span>
@@ -276,7 +276,7 @@ const ProfileSettings = () => {
                   value={personalInfo.name}
                   onChange={(e) => setPersonalInfo({ ...personalInfo, name: e.target.value })}
                   disabled={!isEditing}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-50"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 disabled:bg-gray-50"
                 />
               </div>
 
@@ -298,7 +298,7 @@ const ProfileSettings = () => {
                   value={personalInfo.phone}
                   onChange={(e) => setPersonalInfo({ ...personalInfo, phone: e.target.value })}
                   disabled={!isEditing}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-50"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 disabled:bg-gray-50"
                 />
               </div>
 
@@ -309,7 +309,7 @@ const ProfileSettings = () => {
                   value={personalInfo.dateOfBirth}
                   onChange={(e) => setPersonalInfo({ ...personalInfo, dateOfBirth: e.target.value })}
                   disabled={!isEditing}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-50"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 disabled:bg-gray-50"
                 />
               </div>
 
@@ -319,7 +319,7 @@ const ProfileSettings = () => {
                   value={personalInfo.gender}
                   onChange={(e) => setPersonalInfo({ ...personalInfo, gender: e.target.value })}
                   disabled={!isEditing}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-50"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 disabled:bg-gray-50"
                 >
                   <option value="">Select Gender</option>
                   <option value="male">Male</option>
@@ -334,7 +334,7 @@ const ProfileSettings = () => {
                   value={personalInfo.bloodType}
                   onChange={(e) => setPersonalInfo({ ...personalInfo, bloodType: e.target.value })}
                   disabled={!isEditing}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-50"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 disabled:bg-gray-50"
                 >
                   <option value="">Select Blood Type</option>
                   <option value="A+">A+</option>
@@ -360,7 +360,7 @@ const ProfileSettings = () => {
                 <button
                   onClick={handleSavePersonalInfo}
                   disabled={loading}
-                  className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50"
+                  className="px-4 py-2 bg-green-700 text-white rounded-md hover:bg-green-800 disabled:opacity-50"
                 >
                   {loading ? 'Saving...' : 'Save Changes'}
                 </button>
@@ -381,7 +381,7 @@ const ProfileSettings = () => {
                   type="text"
                   value={addressInfo.street}
                   onChange={(e) => setAddressInfo({ ...addressInfo, street: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
                 />
               </div>
 
@@ -392,7 +392,7 @@ const ProfileSettings = () => {
                     type="text"
                     value={addressInfo.city}
                     onChange={(e) => setAddressInfo({ ...addressInfo, city: e.target.value })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
                   />
                 </div>
 
@@ -402,7 +402,7 @@ const ProfileSettings = () => {
                     type="text"
                     value={addressInfo.state}
                     onChange={(e) => setAddressInfo({ ...addressInfo, state: e.target.value })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
                   />
                 </div>
 
@@ -412,7 +412,7 @@ const ProfileSettings = () => {
                     type="text"
                     value={addressInfo.zipCode}
                     onChange={(e) => setAddressInfo({ ...addressInfo, zipCode: e.target.value })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
                   />
                 </div>
               </div>
@@ -423,7 +423,7 @@ const ProfileSettings = () => {
                   type="text"
                   value={addressInfo.country}
                   onChange={(e) => setAddressInfo({ ...addressInfo, country: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
                 />
               </div>
             </div>
@@ -432,7 +432,7 @@ const ProfileSettings = () => {
               <button
                 onClick={handleSaveAddress}
                 disabled={loading}
-                className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50"
+                className="px-4 py-2 bg-green-700 text-white rounded-md hover:bg-green-800 disabled:opacity-50"
               >
                 {loading ? 'Saving...' : 'Save Address'}
               </button>
@@ -452,7 +452,7 @@ const ProfileSettings = () => {
                   type="text"
                   value={emergencyContact.name}
                   onChange={(e) => setEmergencyContact({ ...emergencyContact, name: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
                 />
               </div>
 
@@ -461,7 +461,7 @@ const ProfileSettings = () => {
                 <select
                   value={emergencyContact.relationship}
                   onChange={(e) => setEmergencyContact({ ...emergencyContact, relationship: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
                 >
                   <option value="">Select Relationship</option>
                   <option value="spouse">Spouse</option>
@@ -479,7 +479,7 @@ const ProfileSettings = () => {
                   type="tel"
                   value={emergencyContact.phone}
                   onChange={(e) => setEmergencyContact({ ...emergencyContact, phone: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
                 />
               </div>
 
@@ -489,7 +489,7 @@ const ProfileSettings = () => {
                   type="email"
                   value={emergencyContact.email}
                   onChange={(e) => setEmergencyContact({ ...emergencyContact, email: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
                 />
               </div>
             </div>
@@ -498,7 +498,7 @@ const ProfileSettings = () => {
               <button
                 onClick={handleSaveEmergencyContact}
                 disabled={loading}
-                className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50"
+                className="px-4 py-2 bg-green-700 text-white rounded-md hover:bg-green-800 disabled:opacity-50"
               >
                 {loading ? 'Saving...' : 'Save Emergency Contact'}
               </button>
@@ -520,7 +520,7 @@ const ProfileSettings = () => {
                   </div>
                   <button
                     onClick={() => setShowPasswordModal(true)}
-                    className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+                    className="px-4 py-2 bg-green-700 text-white rounded-md hover:bg-green-800"
                   >
                     Change Password
                   </button>
@@ -563,7 +563,7 @@ const ProfileSettings = () => {
                   <button
                     onClick={() => setNotifications({ ...notifications, [key]: !notifications[key] })}
                     className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-                      notifications[key] ? 'bg-blue-600' : 'bg-gray-200'
+                      notifications[key] ? 'bg-green-700' : 'bg-gray-200'
                     }`}
                   >
                     <span
@@ -580,7 +580,7 @@ const ProfileSettings = () => {
               <button
                 onClick={handleSaveNotifications}
                 disabled={loading}
-                className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50"
+                className="px-4 py-2 bg-green-700 text-white rounded-md hover:bg-green-800 disabled:opacity-50"
               >
                 {loading ? 'Saving...' : 'Save Preferences'}
               </button>
@@ -610,7 +610,7 @@ const ProfileSettings = () => {
                       type={showPasswords.current ? 'text' : 'password'}
                       value={passwordForm.currentPassword}
                       onChange={(e) => setPasswordForm({ ...passwordForm, currentPassword: e.target.value })}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 pr-10"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 pr-10"
                     />
                     <button
                       type="button"
@@ -633,7 +633,7 @@ const ProfileSettings = () => {
                       type={showPasswords.new ? 'text' : 'password'}
                       value={passwordForm.newPassword}
                       onChange={(e) => setPasswordForm({ ...passwordForm, newPassword: e.target.value })}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 pr-10"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 pr-10"
                     />
                     <button
                       type="button"
@@ -656,7 +656,7 @@ const ProfileSettings = () => {
                       type={showPasswords.confirm ? 'text' : 'password'}
                       value={passwordForm.confirmPassword}
                       onChange={(e) => setPasswordForm({ ...passwordForm, confirmPassword: e.target.value })}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 pr-10"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 pr-10"
                     />
                     <button
                       type="button"
@@ -683,7 +683,7 @@ const ProfileSettings = () => {
                 <button
                   onClick={handleChangePassword}
                   disabled={loading}
-                  className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50"
+                  className="px-4 py-2 bg-green-700 text-white rounded-md hover:bg-green-800 disabled:opacity-50"
                 >
                   {loading ? 'Changing...' : 'Change Password'}
                 </button>

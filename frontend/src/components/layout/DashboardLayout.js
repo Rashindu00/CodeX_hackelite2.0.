@@ -14,7 +14,8 @@ import {
   Bars3Icon,
   XMarkIcon,
   ArrowRightOnRectangleIcon,
-  ChatBubbleLeftRightIcon
+  ChatBubbleLeftRightIcon,
+  ClockIcon
 } from '@heroicons/react/24/outline';
 import { logoutUser } from '../../store/slices/authSlice';
 
@@ -49,6 +50,7 @@ const DashboardLayout = ({ children }) => {
         { name: 'Book Appointment', href: '/patient/appointment-booking', icon: CalendarDaysIcon },
         { name: 'Video Consultation', href: '/patient/video-consultation', icon: VideoCameraIcon },
         { name: 'Health Records', href: '/patient/health-records', icon: DocumentTextIcon },
+        { name: 'Medical History', href: '/patient/history', icon: ClockIcon },
         { name: 'Messages', href: '/messages', icon: ChatBubbleLeftRightIcon },
         { name: 'Symptom Checker', href: '/patient/symptom-checker', icon: HeartIcon },
         { name: 'Profile', href: '/profile', icon: UserIcon },

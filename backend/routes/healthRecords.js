@@ -425,4 +425,308 @@ router.post('/allergies', authenticateToken, async (req, res) => {
   }
 });
 
+// Update vital signs
+router.put('/vitals/:id', authenticateToken, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { bloodPressure, heartRate, temperature, weight, height, notes, date } = req.body;
+
+    // Find and verify ownership
+    const existingRecord = await HealthRecord.findById(id);
+    if (!existingRecord) {
+      return res.status(404).json({ error: { message: 'Vital signs record not found' } });
+    }
+
+    // Verify patient ownership
+    const patient = await Patient.findOne({ user: req.user.id });
+    if (!patient || !existingRecord.patient.equals(patient._id)) {
+      return res.status(403).json({ error: { message: 'Access denied' } });
+    }
+
+    // Parse blood pressure
+    let bloodPressureData = null;
+    if (bloodPressure) {
+      const [systolic, diastolic] = bloodPressure.split('/').map(Number);
+      if (systolic && diastolic) {
+        bloodPressureData = { systolic, diastolic };
+      }
+    }
+
+    // Update the record
+    const updatedRecord = await HealthRecord.findByIdAndUpdate(
+      id,
+      {
+        data: {
+          bloodPressure: bloodPressureData,
+          heartRate: heartRate ? Number(heartRate) : null,
+          temperature: temperature ? Number(temperature) : null,
+          weight: weight ? Number(weight) : null,
+          height: height ? Number(height) : null,
+          notes: notes || ''
+        },
+        date: date || new Date()
+      },
+      { new: true }
+    );
+
+    logger.info('Vital signs updated successfully:', { recordId: id, userId: req.user.id });
+    res.json({
+      success: true,
+      message: 'Vital signs updated successfully',
+      data: updatedRecord
+    });
+  } catch (error) {
+    logger.error('Error updating vital signs:', error);
+    res.status(500).json({ error: { message: 'Failed to update vital signs' } });
+  }
+});
+
+// Update medication
+router.put('/medications/:id', authenticateToken, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { medicationName, dosage, frequency, startDate, endDate, prescribedBy, notes, status } = req.body;
+
+    // Find and verify ownership
+    const existingRecord = await HealthRecord.findById(id);
+    if (!existingRecord) {
+      return res.status(404).json({ error: { message: 'Medication record not found' } });
+    }
+
+    // Verify patient ownership
+    const patient = await Patient.findOne({ user: req.user.id });
+    if (!patient || !existingRecord.patient.equals(patient._id)) {
+      return res.status(403).json({ error: { message: 'Access denied' } });
+    }
+
+    // Update the record
+    const updatedRecord = await HealthRecord.findByIdAndUpdate(
+      id,
+      {
+        data: {
+          name: medicationName,
+          medicationName: medicationName,
+          dosage: dosage || '',
+          frequency: frequency || '',
+          startDate: startDate || new Date(),
+          endDate: endDate || null,
+          prescribedBy: prescribedBy || '',
+          notes: notes || ''
+        },
+        status: status || 'active',
+        date: startDate || existingRecord.date
+      },
+      { new: true }
+    );
+
+    logger.info('Medication updated successfully:', { recordId: id, userId: req.user.id });
+    res.json({
+      success: true,
+      message: 'Medication updated successfully',
+      data: updatedRecord
+    });
+  } catch (error) {
+    logger.error('Error updating medication:', error);
+    res.status(500).json({ error: { message: 'Failed to update medication' } });
+  }
+});
+
+// Update allergy
+router.put('/allergies/:id', authenticateToken, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { allergen, severity, reaction, diagnosedDate, notes } = req.body;
+
+    // Find and verify ownership
+    const existingRecord = await HealthRecord.findById(id);
+    if (!existingRecord) {
+      return res.status(404).json({ error: { message: 'Allergy record not found' } });
+    }
+
+    // Verify patient ownership
+    const patient = await Patient.findOne({ user: req.user.id });
+    if (!patient || !existingRecord.patient.equals(patient._id)) {
+      return res.status(403).json({ error: { message: 'Access denied' } });
+    }
+
+    // Update the record
+    const updatedRecord = await HealthRecord.findByIdAndUpdate(
+      id,
+      {
+        data: {
+          allergen: allergen || '',
+          severity: severity || 'mild',
+          reaction: reaction || '',
+          diagnosedDate: diagnosedDate || new Date(),
+          notes: notes || ''
+        },
+        date: diagnosedDate || existingRecord.date
+      },
+      { new: true }
+    );
+
+    logger.info('Allergy updated successfully:', { recordId: id, userId: req.user.id });
+    res.json({
+      success: true,
+      message: 'Allergy updated successfully',
+      data: updatedRecord
+    });
+  } catch (error) {
+    logger.error('Error updating allergy:', error);
+    res.status(500).json({ error: { message: 'Failed to update allergy' } });
+  }
+});
+
+// Delete vital signs
+router.delete('/vitals/:id', authenticateToken, async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    // Find and verify ownership
+    const existingRecord = await HealthRecord.findById(id);
+    if (!existingRecord) {
+      return res.status(404).json({ error: { message: 'Vital signs record not found' } });
+    }
+
+    // Verify patient ownership
+    const patient = await Patient.findOne({ user: req.user.id });
+    if (!patient || !existingRecord.patient.equals(patient._id)) {
+      return res.status(403).json({ error: { message: 'Access denied' } });
+    }
+
+    // Verify it's a vitals record
+    if (existingRecord.type !== 'vitals') {
+      return res.status(400).json({ error: { message: 'Invalid record type' } });
+    }
+
+    // Delete the record
+    await HealthRecord.findByIdAndDelete(id);
+
+    logger.info('Vital signs deleted successfully:', { recordId: id, userId: req.user.id });
+    res.json({
+      success: true,
+      message: 'Vital signs deleted successfully'
+    });
+  } catch (error) {
+    logger.error('Error deleting vital signs:', error);
+    res.status(500).json({ error: { message: 'Failed to delete vital signs' } });
+  }
+});
+
+// Delete medication
+router.delete('/medications/:id', authenticateToken, async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    // Find and verify ownership
+    const existingRecord = await HealthRecord.findById(id);
+    if (!existingRecord) {
+      return res.status(404).json({ error: { message: 'Medication record not found' } });
+    }
+
+    // Verify patient ownership
+    const patient = await Patient.findOne({ user: req.user.id });
+    if (!patient || !existingRecord.patient.equals(patient._id)) {
+      return res.status(403).json({ error: { message: 'Access denied' } });
+    }
+
+    // Verify it's a medication record
+    if (existingRecord.type !== 'medication') {
+      return res.status(400).json({ error: { message: 'Invalid record type' } });
+    }
+
+    // Delete the record
+    await HealthRecord.findByIdAndDelete(id);
+
+    logger.info('Medication deleted successfully:', { recordId: id, userId: req.user.id });
+    res.json({
+      success: true,
+      message: 'Medication deleted successfully'
+    });
+  } catch (error) {
+    logger.error('Error deleting medication:', error);
+    res.status(500).json({ error: { message: 'Failed to delete medication' } });
+  }
+});
+
+// Delete allergy
+router.delete('/allergies/:id', authenticateToken, async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    // Find and verify ownership
+    const existingRecord = await HealthRecord.findById(id);
+    if (!existingRecord) {
+      return res.status(404).json({ error: { message: 'Allergy record not found' } });
+    }
+
+    // Verify patient ownership
+    const patient = await Patient.findOne({ user: req.user.id });
+    if (!patient || !existingRecord.patient.equals(patient._id)) {
+      return res.status(403).json({ error: { message: 'Access denied' } });
+    }
+
+    // Verify it's an allergy record
+    if (existingRecord.type !== 'allergy') {
+      return res.status(400).json({ error: { message: 'Invalid record type' } });
+    }
+
+    // Delete the record
+    await HealthRecord.findByIdAndDelete(id);
+
+    logger.info('Allergy deleted successfully:', { recordId: id, userId: req.user.id });
+    res.json({
+      success: true,
+      message: 'Allergy deleted successfully'
+    });
+  } catch (error) {
+    logger.error('Error deleting allergy:', error);
+    res.status(500).json({ error: { message: 'Failed to delete allergy' } });
+  }
+});
+
+// Delete document/record
+router.delete('/:id', authenticateToken, async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    // Find and verify ownership
+    const existingRecord = await HealthRecord.findById(id);
+    if (!existingRecord) {
+      return res.status(404).json({ error: { message: 'Health record not found' } });
+    }
+
+    // Verify patient ownership
+    const patient = await Patient.findOne({ user: req.user.id });
+    if (!patient || !existingRecord.patient.equals(patient._id)) {
+      return res.status(403).json({ error: { message: 'Access denied' } });
+    }
+
+    // If it's a document with a file, delete the file
+    if (existingRecord.type === 'document' && existingRecord.data?.filePath) {
+      const filePath = existingRecord.data.filePath;
+      if (fs.existsSync(filePath)) {
+        try {
+          fs.unlinkSync(filePath);
+          logger.info('File deleted:', { filePath });
+        } catch (fileError) {
+          logger.error('Error deleting file:', { filePath, error: fileError });
+        }
+      }
+    }
+
+    // Delete the record
+    await HealthRecord.findByIdAndDelete(id);
+
+    logger.info('Health record deleted successfully:', { recordId: id, userId: req.user.id });
+    res.json({
+      success: true,
+      message: 'Health record deleted successfully'
+    });
+  } catch (error) {
+    logger.error('Error deleting health record:', error);
+    res.status(500).json({ error: { message: 'Failed to delete health record' } });
+  }
+});
+
 module.exports = router;
