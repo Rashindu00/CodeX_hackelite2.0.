@@ -1,17 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { toast } from 'react-hot-toast';
-import { useSelector } from 'react-redux';
 import {
   UserIcon,
-  EnvelopeIcon,
   PhoneIcon,
   MapPinIcon,
   ShieldCheckIcon,
   BellIcon,
   EyeIcon,
   EyeSlashIcon,
-  CheckIcon,
   XMarkIcon,
   PencilIcon
 } from '@heroicons/react/24/outline';
@@ -19,7 +16,6 @@ import DashboardLayout from '../components/layout/DashboardLayout';
 import api from '../services/api';
 
 const ProfileSettings = () => {
-  const { user } = useSelector((state) => state.auth);
   const [loading, setLoading] = useState(false);
   const [activeTab, setActiveTab] = useState('personal');
   const [isEditing, setIsEditing] = useState(false);

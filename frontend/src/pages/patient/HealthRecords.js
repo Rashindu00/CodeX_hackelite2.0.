@@ -12,7 +12,8 @@ import {
   ArrowDownTrayIcon,
   ArrowLeftIcon,
   PlusIcon,
-  XMarkIcon
+  XMarkIcon,
+  ExclamationTriangleIcon
 } from '@heroicons/react/24/outline';
 import DashboardLayout from '../../components/layout/DashboardLayout';
 import { useNavigate } from 'react-router-dom';
@@ -82,16 +83,44 @@ const HealthRecords = () => {
       const response = await api.get('/health-records');
       const healthRecords = response.data.data.healthRecords;
       
-      // Separate records by type
-      const documents = healthRecords.filter(record => record.type === 'document');
-      const vitalsData = healthRecords.filter(record => record.type === 'vitals');
-      const medicationsData = healthRecords.filter(record => record.type === 'medication');
-      const allergiesData = healthRecords.filter(record => record.type === 'allergy');
+      // Separate records by type and sort by date (most recent first)
+      const documents = healthRecords.filter(record => record.type === 'document')
+        .sort((a, b) => new Date(b.date) - new Date(a.date));
+      const vitalsData = healthRecords.filter(record => record.type === 'vitals')
+        .sort((a, b) => new Date(b.date) - new Date(a.date));
+      const medicationsData = healthRecords.filter(record => record.type === 'medication')
+        .sort((a, b) => new Date(b.date) - new Date(a.date));
+      const allergiesData = healthRecords.filter(record => record.type === 'allergy')
+        .sort((a, b) => new Date(b.date) - new Date(a.date));
       
       setRecords(documents);
       setVitals(vitalsData);
       setMedications(medicationsData);
       setAllergies(allergiesData);
+      
+      // Enhanced debug logging
+      console.log('=== HEALTH RECORDS DATA ANALYSIS ===');
+      console.log('Vitals data:', vitalsData);
+      console.log('Medications data:', medicationsData);
+      console.log('Allergies data:', allergiesData);
+      console.log('Records data:', documents);
+      console.log('All health records:', healthRecords);
+      
+      if (vitalsData.length > 0) {
+        console.log('Latest vital:', vitalsData[0]);
+        console.log('Latest vital data structure:', vitalsData[0].data);
+      }
+      if (medicationsData.length > 0) {
+        console.log('First medication:', medicationsData[0]);
+        console.log('First medication data structure:', medicationsData[0].data);
+      }
+      if (allergiesData.length > 0) {
+        console.log('First allergy:', allergiesData[0]);
+        console.log('First allergy data structure:', allergiesData[0].data);
+      }
+      if (documents.length > 0) {
+        console.log('Latest document:', documents[0]);
+      }
     } catch (error) {
       console.error('Error fetching health records:', error);
       toast.error('Failed to load health records');
@@ -237,6 +266,147 @@ const HealthRecords = () => {
     }
   };
 
+  // Handler functions for view and download
+  const handleViewRecord = (record) => {
+    console.log('🔥 PATH CLEANING ACTIVE - View Record 🔥');
+    // Check if record has file data
+    const filePath = record.data?.filePath || record.filePath;
+    const fileName = record.data?.filename || record.data?.originalName;
+    
+    console.log('=== DEBUGGING VIEW RECORD ===');
+    console.log('Full record object:', record);
+    console.log('record.data:', record.data);
+    console.log('record.filePath:', record.filePath);
+    console.log('Final filePath value:', filePath);
+    console.log('filePath type:', typeof filePath);
+    console.log('filePath length:', filePath?.length);
+    
+    if (filePath) {
+      // If it's a file, open in new tab
+      let fileUrl;
+      if (filePath.startsWith('http')) {
+        fileUrl = filePath;
+        console.log('Using HTTP URL directly:', fileUrl);
+      } else {
+        // For local files, construct the URL using the static file server
+        console.log('Processing local file path...');
+        console.log('Original filePath:', filePath);
+        
+        // Handle various path formats more robustly - aggressive cleaning
+        let cleanPath = filePath;
+        
+        // First, normalize backslashes to forward slashes (Windows path fix)
+        cleanPath = cleanPath.replace(/\\/g, '/');
+        console.log('After normalizing slashes:', cleanPath);
+        
+        // Remove any leading slashes
+        cleanPath = cleanPath.replace(/^\/+/, '');
+        
+        // Remove any uploads prefix (multiple variations)
+        cleanPath = cleanPath.replace(/^uploads\/+/, '');
+        cleanPath = cleanPath.replace(/^\/+uploads\/+/, '');
+        cleanPath = cleanPath.replace(/^uploads\/uploads\/+/, ''); // Handle double uploads
+        
+        // Final safety check - ensure no uploads at the beginning
+        while (cleanPath.startsWith('uploads/') || cleanPath.startsWith('/uploads/')) {
+          cleanPath = cleanPath.replace(/^\/*(uploads\/)+/, '');
+        }
+        
+        console.log('Cleaned path:', cleanPath);
+        
+        // Specific fix for the exact error we're seeing
+        if (cleanPath.includes('uploads/')) {
+          cleanPath = cleanPath.replace(/.*uploads\//, ''); // Remove everything up to and including 'uploads/'
+          console.log('Further cleaned path (removed all uploads):', cleanPath);
+        }
+        
+        // Ensure we don't have double uploads in the URL
+        const baseUrl = process.env.REACT_APP_API_URL || 'http://localhost:5000';
+        fileUrl = `${baseUrl}/uploads/${cleanPath}`;
+        console.log('Final constructed file URL:', fileUrl);
+      }
+      window.open(fileUrl, '_blank');
+    } else {
+      // Show record details in a modal or alert
+      toast.info(`Record: ${record.title}\nDate: ${new Date(record.date || record.createdAt).toLocaleDateString()}\nDescription: ${record.description || 'No description available'}`);
+    }
+  };
+
+  const handleDownloadRecord = async (record) => {
+    try {
+      const filePath = record.data?.filePath || record.filePath;
+      const fileName = record.data?.filename || record.data?.originalName || record.title;
+      
+      console.log('=== DEBUGGING DOWNLOAD RECORD ===');
+      console.log('Full record object:', record);
+      console.log('record.data:', record.data);
+      console.log('Final filePath value:', filePath);
+      console.log('Final fileName value:', fileName);
+      
+      if (filePath) {
+        let downloadUrl;
+        
+        if (filePath.startsWith('http')) {
+          downloadUrl = filePath;
+          console.log('Using HTTP URL directly for download:', downloadUrl);
+        } else {
+          // For local files, construct the URL using the static file server
+          console.log('Processing local file path for download...');
+          console.log('Original filePath:', filePath);
+          
+          // Handle various path formats more robustly - aggressive cleaning
+          let cleanPath = filePath;
+          
+          // First, normalize backslashes to forward slashes (Windows path fix)
+          cleanPath = cleanPath.replace(/\\/g, '/');
+          console.log('After normalizing slashes for download:', cleanPath);
+          
+          // Remove any leading slashes
+          cleanPath = cleanPath.replace(/^\/+/, '');
+          
+          // Remove any uploads prefix (multiple variations)
+          cleanPath = cleanPath.replace(/^uploads\/+/, '');
+          cleanPath = cleanPath.replace(/^\/+uploads\/+/, '');
+          cleanPath = cleanPath.replace(/^uploads\/uploads\/+/, ''); // Handle double uploads
+          
+          // Final safety check - ensure no uploads at the beginning
+          while (cleanPath.startsWith('uploads/') || cleanPath.startsWith('/uploads/')) {
+            cleanPath = cleanPath.replace(/^\/*(uploads\/)+/, '');
+          }
+          
+          console.log('Cleaned path for download:', cleanPath);
+          
+          // Specific fix for the exact error we're seeing
+          if (cleanPath.includes('uploads/')) {
+            cleanPath = cleanPath.replace(/.*uploads\//, ''); // Remove everything up to and including 'uploads/'
+            console.log('Further cleaned download path (removed all uploads):', cleanPath);
+          }
+          
+          // Ensure we don't have double uploads in the URL
+          const baseUrl = process.env.REACT_APP_API_URL || 'http://localhost:5000';
+          downloadUrl = `${baseUrl}/uploads/${cleanPath}`;
+          console.log('Final constructed download URL:', downloadUrl);
+        }
+        
+        // Create a temporary anchor element and trigger download
+        const link = document.createElement('a');
+        link.href = downloadUrl;
+        link.download = fileName || 'medical-record';
+        link.target = '_blank'; // Add this to handle CORS issues
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        
+        toast.success('Download started');
+      } else {
+        toast.error('No file available for download');
+      }
+    } catch (error) {
+      console.error('Error downloading record:', error);
+      toast.error('Failed to download record');
+    }
+  };
+
   const tabs = [
     { id: 'overview', name: 'Overview', icon: ChartBarIcon },
     { id: 'records', name: 'Medical Records', icon: DocumentTextIcon },
@@ -365,27 +535,48 @@ const HealthRecords = () => {
                   <div className="bg-white rounded-xl shadow-sm border border-gray-200">
                     <div className="p-6">
                       <h3 className="text-lg font-semibold text-gray-900 mb-4">Latest Vitals</h3>
-                      {vitals.length > 0 && (
+                      {vitals.length > 0 && vitals[0].data ? (
                         <div className="space-y-4">
-                          <div className="flex justify-between">
-                            <span className="text-gray-600">Blood Pressure</span>
-                            <span className="font-medium">{vitals[0].bloodPressure} mmHg</span>
-                          </div>
-                          <div className="flex justify-between">
-                            <span className="text-gray-600">Heart Rate</span>
-                            <span className="font-medium">{vitals[0].heartRate} bpm</span>
-                          </div>
-                          <div className="flex justify-between">
-                            <span className="text-gray-600">Temperature</span>
-                            <span className="font-medium">{vitals[0].temperature}°F</span>
-                          </div>
-                          <div className="flex justify-between">
-                            <span className="text-gray-600">Weight</span>
-                            <span className="font-medium">{vitals[0].weight} lbs</span>
-                          </div>
+                          {vitals[0].data.bloodPressure && (
+                            <div className="flex justify-between">
+                              <span className="text-gray-600">Blood Pressure</span>
+                              <span className="font-medium">
+                                {vitals[0].data.bloodPressure.systolic}/{vitals[0].data.bloodPressure.diastolic} mmHg
+                              </span>
+                            </div>
+                          )}
+                          {vitals[0].data.heartRate && (
+                            <div className="flex justify-between">
+                              <span className="text-gray-600">Heart Rate</span>
+                              <span className="font-medium">{vitals[0].data.heartRate} bpm</span>
+                            </div>
+                          )}
+                          {vitals[0].data.temperature && (
+                            <div className="flex justify-between">
+                              <span className="text-gray-600">Temperature</span>
+                              <span className="font-medium">{vitals[0].data.temperature}°F</span>
+                            </div>
+                          )}
+                          {vitals[0].data.weight && (
+                            <div className="flex justify-between">
+                              <span className="text-gray-600">Weight</span>
+                              <span className="font-medium">{vitals[0].data.weight} lbs</span>
+                            </div>
+                          )}
                           <div className="text-xs text-gray-500 mt-4">
-                            Last updated: {vitals[0].date}
+                            Last updated: {new Date(vitals[0].date).toLocaleDateString()}
                           </div>
+                        </div>
+                      ) : (
+                        <div className="text-center py-8 text-gray-500">
+                          <HeartIcon className="h-12 w-12 mx-auto mb-4 text-gray-300" />
+                          <p>No vital signs recorded yet</p>
+                          <button 
+                            onClick={() => setShowVitalsModal(true)}
+                            className="mt-2 text-teal-600 hover:text-teal-700 font-medium"
+                          >
+                            Add your first vital signs
+                          </button>
                         </div>
                       )}
                     </div>
@@ -420,29 +611,54 @@ const HealthRecords = () => {
                           </tr>
                         </thead>
                         <tbody>
-                          {records.map((record) => (
-                            <tr key={record.id} className="border-b border-gray-100">
-                              <td className="py-3 px-4 text-sm text-gray-600">{record.type}</td>
-                              <td className="py-3 px-4 text-sm font-medium text-gray-900">{record.title}</td>
-                              <td className="py-3 px-4 text-sm text-gray-600">{record.provider}</td>
-                              <td className="py-3 px-4 text-sm text-gray-600">{record.date}</td>
+                          {records.length > 0 ? records.map((record) => (
+                            <tr key={record._id || record.id} className="border-b border-gray-100">
+                              <td className="py-3 px-4 text-sm text-gray-600 capitalize">{record.type}</td>
+                              <td className="py-3 px-4 text-sm font-medium text-gray-900">{record.title || 'Medical Document'}</td>
+                              <td className="py-3 px-4 text-sm text-gray-600">
+                                {record.addedBy?.name || record.provider || 'Self-uploaded'}
+                              </td>
+                              <td className="py-3 px-4 text-sm text-gray-600">
+                                {new Date(record.date || record.createdAt).toLocaleDateString()}
+                              </td>
                               <td className="py-3 px-4">
-                                <span className={`px-2 py-1 text-xs font-medium rounded-full ${getStatusColor(record.status)}`}>
-                                  {record.status}
+                                <span className={`px-2 py-1 text-xs font-medium rounded-full ${getStatusColor(record.status || 'active')}`}>
+                                  {record.status || 'active'}
                                 </span>
                               </td>
                               <td className="py-3 px-4">
                                 <div className="flex space-x-2">
-                                  <button className="text-teal-600 hover:text-teal-700">
+                                  <button 
+                                    onClick={() => handleViewRecord(record)}
+                                    className="text-teal-600 hover:text-teal-700 p-1 rounded hover:bg-teal-50"
+                                    title="View record"
+                                  >
                                     <EyeIcon className="h-4 w-4" />
                                   </button>
-                                  <button className="text-gray-600 hover:text-gray-700">
+                                  <button 
+                                    onClick={() => handleDownloadRecord(record)}
+                                    className="text-gray-600 hover:text-gray-700 p-1 rounded hover:bg-gray-50"
+                                    title="Download record"
+                                  >
                                     <ArrowDownTrayIcon className="h-4 w-4" />
                                   </button>
                                 </div>
                               </td>
                             </tr>
-                          ))}
+                          )) : (
+                            <tr>
+                              <td colSpan="6" className="py-8 text-center text-gray-500">
+                                <DocumentTextIcon className="h-12 w-12 mx-auto mb-4 text-gray-300" />
+                                <p>No medical records found</p>
+                                <button 
+                                  onClick={() => setShowUploadModal(true)}
+                                  className="mt-2 text-teal-600 hover:text-teal-700 font-medium"
+                                >
+                                  Upload your first record
+                                </button>
+                              </td>
+                            </tr>
+                          )}
                         </tbody>
                       </table>
                     </div>
@@ -476,15 +692,41 @@ const HealthRecords = () => {
                           </tr>
                         </thead>
                         <tbody>
-                          {vitals.map((vital, index) => (
-                            <tr key={index} className="border-b border-gray-100">
-                              <td className="py-3 px-4 text-sm text-gray-900">{vital.date}</td>
-                              <td className="py-3 px-4 text-sm text-gray-600">{vital.bloodPressure} mmHg</td>
-                              <td className="py-3 px-4 text-sm text-gray-600">{vital.heartRate} bpm</td>
-                              <td className="py-3 px-4 text-sm text-gray-600">{vital.temperature}°F</td>
-                              <td className="py-3 px-4 text-sm text-gray-600">{vital.weight} lbs</td>
+                          {vitals.length > 0 ? vitals.map((vital, index) => (
+                            <tr key={vital._id || index} className="border-b border-gray-100">
+                              <td className="py-3 px-4 text-sm text-gray-900">
+                                {new Date(vital.date || vital.createdAt).toLocaleDateString()}
+                              </td>
+                              <td className="py-3 px-4 text-sm text-gray-600">
+                                {vital.data?.bloodPressure ? 
+                                  `${vital.data.bloodPressure.systolic}/${vital.data.bloodPressure.diastolic}` : 
+                                  'N/A'
+                                } mmHg
+                              </td>
+                              <td className="py-3 px-4 text-sm text-gray-600">
+                                {vital.data?.heartRate || 'N/A'} bpm
+                              </td>
+                              <td className="py-3 px-4 text-sm text-gray-600">
+                                {vital.data?.temperature || 'N/A'}°F
+                              </td>
+                              <td className="py-3 px-4 text-sm text-gray-600">
+                                {vital.data?.weight || 'N/A'} lbs
+                              </td>
                             </tr>
-                          ))}
+                          )) : (
+                            <tr>
+                              <td colSpan="5" className="py-8 text-center text-gray-500">
+                                <HeartIcon className="h-12 w-12 mx-auto mb-4 text-gray-300" />
+                                <p>No vital signs recorded</p>
+                                <button 
+                                  onClick={() => setShowVitalsModal(true)}
+                                  className="mt-2 text-teal-600 hover:text-teal-700 font-medium"
+                                >
+                                  Add your first vital signs
+                                </button>
+                              </td>
+                            </tr>
+                          )}
                         </tbody>
                       </table>
                     </div>
@@ -507,24 +749,42 @@ const HealthRecords = () => {
                       </button>
                     </div>
                     <div className="space-y-4">
-                      {medications.map((medication) => (
-                        <div key={medication.id} className="border border-gray-200 rounded-lg p-4">
+                      {medications.length > 0 ? medications.map((medication) => (
+                        <div key={medication._id || medication.id} className="border border-gray-200 rounded-lg p-4">
                           <div className="flex justify-between items-start">
                             <div>
-                              <h4 className="font-semibold text-gray-900">{medication.name}</h4>
+                              <h4 className="font-semibold text-gray-900">
+                                {medication.data?.name || medication.name || 'Unknown Medication'}
+                              </h4>
                               <p className="text-sm text-gray-600">
-                                {medication.dosage} • {medication.frequency}
+                                {medication.data?.dosage || medication.dosage || 'N/A'} • {medication.data?.frequency || medication.frequency || 'N/A'}
                               </p>
                               <p className="text-sm text-gray-500 mt-1">
-                                Prescribed by {medication.prescribedBy} on {medication.startDate}
+                                Prescribed by {medication.data?.prescribedBy || medication.prescribedBy || medication.addedBy?.name || 'Doctor'} on {new Date(medication.date || medication.createdAt).toLocaleDateString()}
                               </p>
+                              {medication.data?.instructions && (
+                                <p className="text-sm text-gray-600 mt-2">
+                                  <span className="font-medium">Instructions:</span> {medication.data.instructions}
+                                </p>
+                              )}
                             </div>
-                            <span className={`px-2 py-1 text-xs font-medium rounded-full ${getStatusColor(medication.status)}`}>
-                              {medication.status}
+                            <span className={`px-2 py-1 text-xs font-medium rounded-full ${getStatusColor(medication.status || 'active')}`}>
+                              {medication.status || 'active'}
                             </span>
                           </div>
                         </div>
-                      ))}
+                      )) : (
+                        <div className="text-center py-8">
+                          <HeartIcon className="h-12 w-12 mx-auto mb-4 text-gray-300" />
+                          <p className="text-gray-500 mb-2">No medications recorded</p>
+                          <button 
+                            onClick={() => setShowMedicationModal(true)}
+                            className="text-teal-600 hover:text-teal-700 font-medium"
+                          >
+                            Add your first medication
+                          </button>
+                        </div>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -545,19 +805,42 @@ const HealthRecords = () => {
                       </button>
                     </div>
                     <div className="space-y-4">
-                      {allergies.map((allergy) => (
-                        <div key={allergy.id} className="border border-gray-200 rounded-lg p-4">
+                      {allergies.length > 0 ? allergies.map((allergy) => (
+                        <div key={allergy._id || allergy.id} className="border border-gray-200 rounded-lg p-4">
                           <div className="flex justify-between items-start">
                             <div>
-                              <h4 className="font-semibold text-gray-900">{allergy.allergen}</h4>
-                              <p className="text-sm text-gray-600">{allergy.reaction}</p>
+                              <h4 className="font-semibold text-gray-900">
+                                {allergy.data?.allergen || allergy.allergen || 'Unknown Allergen'}
+                              </h4>
+                              <p className="text-sm text-gray-600">
+                                <span className="font-medium">Reaction:</span> {allergy.data?.reaction || allergy.reaction || 'Not specified'}
+                              </p>
+                              {allergy.data?.notes && (
+                                <p className="text-sm text-gray-500 mt-1">
+                                  <span className="font-medium">Notes:</span> {allergy.data.notes}
+                                </p>
+                              )}
+                              <p className="text-sm text-gray-400 mt-1">
+                                Recorded on {new Date(allergy.date || allergy.createdAt).toLocaleDateString()}
+                              </p>
                             </div>
-                            <span className={`px-2 py-1 text-xs font-medium rounded-full ${getSeverityColor(allergy.severity)}`}>
-                              {allergy.severity}
+                            <span className={`px-2 py-1 text-xs font-medium rounded-full ${getSeverityColor(allergy.data?.severity || allergy.severity || 'moderate')}`}>
+                              {allergy.data?.severity || allergy.severity || 'moderate'}
                             </span>
                           </div>
                         </div>
-                      ))}
+                      )) : (
+                        <div className="text-center py-8">
+                          <ExclamationTriangleIcon className="h-12 w-12 mx-auto mb-4 text-gray-300" />
+                          <p className="text-gray-500 mb-2">No allergies recorded</p>
+                          <button 
+                            onClick={() => setShowAllergyModal(true)}
+                            className="text-teal-600 hover:text-teal-700 font-medium"
+                          >
+                            Add allergy information
+                          </button>
+                        </div>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -653,15 +936,16 @@ const HealthRecords = () => {
 
         {/* Vitals Modal */}
         {showVitalsModal && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-            <div className="bg-white rounded-lg p-6 w-full max-w-md">
-              <div className="flex justify-between items-center mb-4">
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+            <div className="bg-white rounded-lg w-full max-w-md max-h-[90vh] flex flex-col">
+              <div className="flex justify-between items-center p-6 pb-4 border-b border-gray-200">
                 <h3 className="text-lg font-semibold">Add Vital Signs</h3>
                 <button onClick={() => setShowVitalsModal(false)}>
                   <XMarkIcon className="h-6 w-6 text-gray-400 hover:text-gray-600" />
                 </button>
               </div>
-              <form onSubmit={handleVitalsSubmit}>
+              <form onSubmit={handleVitalsSubmit} className="flex flex-col flex-1 min-h-0">
+                <div className="flex-1 overflow-y-auto p-6">
                 <div className="space-y-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">

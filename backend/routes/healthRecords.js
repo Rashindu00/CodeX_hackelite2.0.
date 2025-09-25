@@ -47,6 +47,45 @@ router.get('/test', (req, res) => {
   res.json({ success: true, message: 'Health records routes working!' });
 });
 
+// Debug route to check file paths in database
+router.get('/debug-paths', authenticateToken, async (req, res) => {
+  try {
+    const patient = await Patient.findOne({ user: req.user.id });
+    if (!patient) {
+      return res.status(404).json({ error: { message: 'Patient not found' } });
+    }
+
+    const records = await HealthRecord.find({ 
+      patient: patient._id, 
+      type: 'document',
+      'data.filePath': { $exists: true }
+    }).select('title data.filePath data.filename createdAt');
+
+    console.log('Debug - Found records with file paths:');
+    records.forEach(record => {
+      console.log('Record ID:', record._id);
+      console.log('Title:', record.title);
+      console.log('File Path:', record.data.filePath);
+      console.log('File Name:', record.data.filename);
+      console.log('---');
+    });
+
+    res.json({
+      success: true,
+      message: 'Check server console for file path details',
+      recordCount: records.length,
+      records: records.map(r => ({
+        id: r._id,
+        title: r.title,
+        filePath: r.data.filePath,
+        filename: r.data.filename
+      }))
+    });
+  } catch (error) {
+    res.status(500).json({ error: { message: 'Debug failed', details: error.message } });
+  }
+});
+
 // @route   GET /api/health-records
 // @desc    Get all health records for authenticated patient
 // @access  Private
@@ -131,6 +170,11 @@ router.post('/upload', authenticateToken, upload.single('file'), async (req, res
 
     const { title, description, category } = req.body;
 
+    console.log('=== FILE UPLOAD DEBUG ===');
+    console.log('req.file.path:', req.file.path);
+    console.log('req.file.filename:', req.file.filename);
+    console.log('req.file.originalname:', req.file.originalname);
+
     const healthRecord = new HealthRecord({
       patient: patient._id,
       type: 'document',
@@ -146,6 +190,11 @@ router.post('/upload', authenticateToken, upload.single('file'), async (req, res
       },
       addedBy: req.user.id,
       date: new Date()
+    });
+
+    console.log('Health record data being saved:', {
+      filePath: req.file.path,
+      filename: req.file.filename
     });
 
     const savedRecord = await healthRecord.save();
